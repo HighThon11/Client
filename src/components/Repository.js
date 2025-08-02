@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Repository.css';
 
-const Repository = () => {
+const Repository = ({ user, githubToken }) => {
   const [repositories, setRepositories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -10,27 +10,23 @@ const Repository = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 로컬 스토리지에서 사용자 정보와 GitHub 토큰 가져오기
-    const userData = localStorage.getItem('user');
-    const githubToken = localStorage.getItem('githubToken');
-
-    if (!userData || !githubToken) {
+    // props에서 사용자 정보와 GitHub 토큰 가져오기
+    if (!user || !githubToken) {
+      console.log('Missing user or githubToken props:', { user: !!user, githubToken: !!githubToken });
       navigate('/login');
       return;
     }
 
-    try {
-      const user = JSON.parse(userData);
-      fetchRepositories(githubToken);
-    } catch (error) {
-      console.error('Error parsing user data:', error);
-      navigate('/login');
-    }
-  }, [navigate]);
+    console.log('Repository component mounted with user:', user.login);
+    fetchRepositories(githubToken);
+  }, [user, githubToken, navigate]);
 
   const fetchRepositories = async (token) => {
     try {
       setLoading(true);
+      setError(null);
+      
+      console.log('Fetching repositories with token:', token ? 'Token exists' : 'No token');
       
       // GitHub API를 사용하여 사용자의 레포지토리 가져오기
       const response = await fetch('https://api.github.com/user/repos', {
@@ -40,15 +36,20 @@ const Repository = () => {
         }
       });
 
+      console.log('GitHub API response status:', response.status);
+
       if (!response.ok) {
-        throw new Error('GitHub API 요청 실패');
+        const errorText = await response.text();
+        console.error('GitHub API error:', errorText);
+        throw new Error(`GitHub API 요청 실패: ${response.status} ${response.statusText}`);
       }
 
       const repos = await response.json();
+      console.log('Fetched repositories:', repos.length);
       setRepositories(repos);
     } catch (err) {
-      setError('레포지토리를 불러오는데 실패했습니다.');
       console.error('Error fetching repositories:', err);
+      setError(`레포지토리를 불러오는데 실패했습니다: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -59,7 +60,7 @@ const Repository = () => {
     // 선택된 레포지토리를 로컬 스토리지에 저장
     localStorage.setItem('selectedRepository', JSON.stringify(repo));
     // 프로젝트 등록 페이지로 이동
-    navigate('/project-registration');
+    navigate('/register-project');
   };
 
   const handleBackToDashboard = () => {
@@ -87,8 +88,15 @@ const Repository = () => {
         <div className="error-message">
           <h3>오류 발생</h3>
           <p>{error}</p>
-          <button onClick={() => window.location.reload()} className="primary-button">
+          <button onClick={() => {
+            setError(null);
+            setLoading(true);
+            fetchRepositories(githubToken);
+          }} className="primary-button">
             다시 시도
+          </button>
+          <button onClick={() => navigate('/dashboard')} className="primary-button" style={{ marginLeft: '10px' }}>
+            대시보드로 돌아가기
           </button>
         </div>
       </div>
@@ -106,6 +114,7 @@ const Repository = () => {
       </div>
 
       <div className="repository-grid">
+        {/* 기존 레포지토리 카드들 */}
         {repositories.map((repo) => (
           <div 
             key={repo.id} 
@@ -141,6 +150,18 @@ const Repository = () => {
             </div>
           </div>
         ))}
+
+        {/* 새 레포지토리 추가 카드 */}
+        <div 
+          className="repository-card add-repository-card"
+          onClick={handleCreateRepository}
+        >
+          <div className="add-repository-content">
+            <div className="add-icon">+</div>
+            <h3>새 레포지토리 추가</h3>
+            <p>새로운 GitHub 레포지토리를 생성하거나 기존 레포지토리를 추가하세요.</p>
+          </div>
+        </div>
       </div>
 
       {repositories.length === 0 && (

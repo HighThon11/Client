@@ -11,6 +11,8 @@
   text-align: center;
 }
 
+
+
 .repository-header h1 {
   color: #ffffff;
   font-size: 2.5rem;
@@ -52,7 +54,7 @@
 
 .repository-card {
   background: #1A1A1A;
-  border: 1px solid #404040;
+  border: none;
   border-radius: 12px;
   padding: 25px;
   cursor: pointer;
@@ -65,6 +67,46 @@
   transform: translateY(-3px);
   border-color: #667eea;
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+}
+
+.add-repository-card {
+  border: 2px dashed #404040;
+  background: #1A1A1A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.add-repository-card:hover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.add-repository-content {
+  text-align: center;
+  color: #cccccc;
+}
+
+.add-icon {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #667eea;
+  margin-bottom: 15px;
+}
+
+.add-repository-content h3 {
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.add-repository-content p {
+  color: #999999;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
 }
 
 .repo-header {
@@ -184,7 +226,7 @@
 /* 에러 메시지 */
 .error-message {
   background: #1A1A1A;
-  border: 1px solid #404040;
+  border: none;
   color: #ef4444;
   padding: 25px;
   border-radius: 12px;
