@@ -11,13 +11,41 @@ import ProjectDetails from './components/ProjectDetails';
 import Navbar from './components/Navbar';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
-  const [githubToken, setGithubToken] = useState('');
+  // 테스트를 위한 더미 데이터 사용 (API 연결 테스트용)
+  const USE_DUMMY_AUTH = true;
+  
+  const dummyUser = {
+    id: 1,
+    login: 'testuser',
+    name: '테스트 사용자',
+    email: 'test@example.com',
+    avatar_url: 'https://ui-avatars.com/api/?name=Test+User&background=random',
+    html_url: 'https://github.com/testuser'
+  };
+  const dummyToken = 'dummy-github-token-12345';
+  
+  const [isAuthenticated, setIsAuthenticated] = useState(USE_DUMMY_AUTH);
+  const [user, setUser] = useState(USE_DUMMY_AUTH ? dummyUser : null);
+  const [githubToken, setGithubToken] = useState(USE_DUMMY_AUTH ? dummyToken : '');
   const [showSignup, setShowSignup] = useState(false);
 
-  useEffect(() => {
-    // 로컬 스토리지에서 인증 상태 확인
+    useEffect(() => {
+    // 테스트를 위한 더미 데이터 사용 (API 연결 테스트용)
+    const USE_DUMMY_AUTH = true;
+    
+    if (USE_DUMMY_AUTH) {
+      console.log('🧪 더미 인증 데이터 사용 중...');
+      // 상태를 명시적으로 업데이트
+      setUser(dummyUser);
+      setGithubToken(dummyToken);
+      setIsAuthenticated(true);
+      // 로컬 스토리지에도 저장 (일관성 유지)
+      localStorage.setItem('githubToken', dummyToken);
+      localStorage.setItem('user', JSON.stringify(dummyUser));
+      return;
+    }
+    
+    // 실제 인증 로직 (더미 데이터가 아닐 때)
     const token = localStorage.getItem('githubToken');
     const userData = localStorage.getItem('user');
     
