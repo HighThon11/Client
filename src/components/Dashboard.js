@@ -109,9 +109,17 @@ const Dashboard = ({ user, githubToken }) => {
         <div className="dashboard-card">
           <div className="card-header">
             <h2>📁 등록된 프로젝트</h2>
-            <Link to="/register-project" className="add-project-btn">
-              + 새 프로젝트
-            </Link>
+            <div className="header-buttons">
+              <Link to="/repository" className="add-project-btn">
+                📂 기존 레포지토리 보기
+              </Link>
+              <Link to="/create-repository" className="add-project-btn">
+                ➕ 새 레포지토리 만들기
+              </Link>
+              <Link to="/register-project" className="add-project-btn">
+                + 새 프로젝트
+              </Link>
+            </div>
           </div>
           <div className="card-content">
             {projects.length === 0 ? (
