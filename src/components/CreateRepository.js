@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from 'react';
+// // React 훅 사용
 import { useNavigate } from 'react-router-dom';
 import { getGitHubRepositories } from '../api/auth';
 import './CreateRepository.css';
 
 const CreateRepository = ({ user, githubToken }) => {
+// // 새로운 함수 정의
   const [formData, setFormData] = useState({
+  // // 변수 선언
     selectedRepository: '',
     repositoryType: ''
   });
   const [repositories, setRepositories] = useState([]);
+  // // 변수 선언
   const [loading, setLoading] = useState(false);
+  // // 변수 선언
   const [error, setError] = useState('');
+  // // 변수 선언
   const navigate = useNavigate();
+  // // 변수 선언
 
   useEffect(() => {
+  // // React 훅 사용
     // props에서 사용자 정보와 GitHub 토큰 가져오기
     console.log('CreateRepository useEffect - user:', user, 'githubToken:', !!githubToken);
+    // // React 훅 사용
     
     if (!user || !githubToken) {
       console.log('Missing user or githubToken props:', { user: !!user, githubToken: !!githubToken });
@@ -27,6 +36,7 @@ const CreateRepository = ({ user, githubToken }) => {
   }, [user, githubToken, navigate]);
 
   const fetchRepositories = async (token) => {
+  // // 새로운 함수 정의
     try {
       console.log('🚀 CreateRepository.js - fetchRepositories 시작');
       console.log('🔑 토큰 존재 여부:', !!token);
@@ -38,6 +48,7 @@ const CreateRepository = ({ user, githubToken }) => {
 
       // 백엔드 API를 사용하여 GitHub 레포지토리 목록 가져오기
       const repos = await getGitHubRepositories(token);
+      // // 변수 선언
       console.log('✅ CreateRepository.js - 레포지토리 가져오기 성공:', repos.length);
       setRepositories(repos);
     } catch (err) {
@@ -45,6 +56,7 @@ const CreateRepository = ({ user, githubToken }) => {
       // API 연결 실패 시에도 더미 데이터 사용
       console.log('🔄 API 연결 실패 - 더미 데이터로 대체...');
       const dummyRepos = [
+      // // 변수 선언
         {
           id: 1,
           name: 'my-react-app',
@@ -81,14 +93,18 @@ const CreateRepository = ({ user, githubToken }) => {
   };
 
   const handleInputChange = (e) => {
+  // // 새로운 함수 정의
     const { name, value } = e.target;
+    // // 변수 선언
     setFormData(prev => ({
+    // // JavaScript 로직 추가
       ...prev,
       [name]: value
     }));
   };
 
   const handleSubmit = async (e) => {
+  // // 새로운 함수 정의
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -99,6 +115,7 @@ const CreateRepository = ({ user, githubToken }) => {
       }
 
       const selectedRepo = repositories.find(repo => repo.id.toString() === formData.selectedRepository);
+      // // 새로운 함수 정의
       
       if (!selectedRepo) {
         throw new Error('선택된 레포지토리를 찾을 수 없습니다.');
@@ -118,6 +135,7 @@ const CreateRepository = ({ user, githubToken }) => {
   };
 
   const handleBackToRepository = () => {
+  // // 새로운 함수 정의
     navigate('/repository');
   };
 
@@ -157,6 +175,7 @@ const CreateRepository = ({ user, githubToken }) => {
                >
                  <option value="">저장소</option>
                  {repositories.map((repo) => (
+                 // // JavaScript 로직 추가
                    <option key={repo.id} value={repo.id}>
                      {repo.name}
                    </option>

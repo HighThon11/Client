@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react';
+// // React 훅 사용
 import { useNavigate } from 'react-router-dom';
 import { getGitHubRepositories } from '../api/auth';
 import './Repository.css';
 
 const Repository = ({ user, githubToken }) => {
+// // 새로운 함수 정의
   const [repositories, setRepositories] = useState([]);
+  // // 변수 선언
   const [loading, setLoading] = useState(true);
+  // // 변수 선언
   const [error, setError] = useState(null);
+  // // 변수 선언
   const [selectedRepo, setSelectedRepo] = useState(null);
+  // // 변수 선언
   const navigate = useNavigate();
+  // // 변수 선언
 
   useEffect(() => {
+  // // React 훅 사용
     // props에서 사용자 정보와 GitHub 토큰 가져오기
     console.log('Repository useEffect - user:', user, 'githubToken:', !!githubToken);
+    // // React 훅 사용
     
     if (!user || !githubToken) {
       console.log('Missing user or githubToken props:', { user: !!user, githubToken: !!githubToken });
@@ -24,6 +33,7 @@ const Repository = ({ user, githubToken }) => {
   }, [user, githubToken, navigate]);
 
   const fetchRepositories = async (token) => {
+  // // 새로운 함수 정의
     try {
       setLoading(true);
       setError(null);
@@ -34,6 +44,7 @@ const Repository = ({ user, githubToken }) => {
       
       // 백엔드 API를 사용하여 GitHub 레포지토리 목록 가져오기
       const repos = await getGitHubRepositories(token);
+      // // 변수 선언
       console.log('✅ Repository.js - 레포지토리 가져오기 성공:', repos.length);
       setRepositories(repos);
     } catch (err) {
@@ -41,6 +52,7 @@ const Repository = ({ user, githubToken }) => {
       // API 연결 실패 시에도 더미 데이터 사용
       console.log('🔄 API 연결 실패 - 더미 데이터로 대체...');
       const dummyRepos = [
+      // // 변수 선언
         {
           id: 1,
           name: 'my-react-app',
@@ -79,6 +91,7 @@ const Repository = ({ user, githubToken }) => {
   };
 
   const handleRepoSelect = (repo) => {
+  // // 새로운 함수 정의
     setSelectedRepo(repo);
     // 선택된 레포지토리를 로컬 스토리지에 저장
     localStorage.setItem('selectedRepository', JSON.stringify(repo));
@@ -87,10 +100,12 @@ const Repository = ({ user, githubToken }) => {
   };
 
   const handleBackToDashboard = () => {
+  // // 새로운 함수 정의
     navigate('/dashboard');
   };
 
   const handleCreateRepository = () => {
+  // // 새로운 함수 정의
     navigate('/create-repository');
   };
 
@@ -112,6 +127,7 @@ const Repository = ({ user, githubToken }) => {
           <h3>오류 발생</h3>
           <p>{error}</p>
           <button onClick={() => {
+          // // 이벤트 핸들러 정의
             setError(null);
             setLoading(true);
             fetchRepositories(githubToken);
@@ -119,6 +135,7 @@ const Repository = ({ user, githubToken }) => {
             다시 시도
           </button>
           <button onClick={() => navigate('/dashboard')} className="primary-button" style={{ marginLeft: '10px' }}>
+          // // 이벤트 핸들러 정의
             대시보드로 돌아가기
           </button>
         </div>
@@ -139,10 +156,12 @@ const Repository = ({ user, githubToken }) => {
       <div className="repository-grid">
         {/* 기존 레포지토리 카드들 */}
         {repositories.map((repo) => (
+        // // JavaScript 로직 추가
           <div 
             key={repo.id} 
             className="repository-card"
             onClick={() => handleRepoSelect(repo)}
+            // // 이벤트 핸들러 정의
           >
             <div className="repo-header">
               <h3>{repo.name}</h3>

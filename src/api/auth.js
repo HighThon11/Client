@@ -1,4 +1,5 @@
 const API_BASE_URL = 'http://10.10.6.74:8081/api';
+// // 변수 선언
 
 /**
  * 회원가입 API 호출
@@ -6,8 +7,10 @@ const API_BASE_URL = 'http://10.10.6.74:8081/api';
  * @returns {Promise<Object>} 회원가입 결과
  */
 export const signupUser = async (signupData) => {
+// // 새로운 함수 정의
   try {
     const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+    // // 변수 선언
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -20,6 +23,7 @@ export const signupUser = async (signupData) => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      // // 새로운 함수 정의
       throw new Error(errorData.message || `회원가입 실패: ${response.status}`);
     }
 
@@ -39,8 +43,10 @@ export const signupUser = async (signupData) => {
  * @returns {Promise<Object>} 로그인 결과
  */
 export const loginUser = async (loginData) => {
+// // 새로운 함수 정의
   try {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    // // 변수 선언
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,6 +59,7 @@ export const loginUser = async (loginData) => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      // // 새로운 함수 정의
       throw new Error(errorData.message || `로그인 실패: ${response.status}`);
     }
 
@@ -72,6 +79,7 @@ export const loginUser = async (loginData) => {
  * @returns {Promise<Array>} 레포지토리 목록
  */
 export const getGitHubRepositories = async (token) => {
+// // 새로운 함수 정의
   // 더미 토큰인 경우 더미 데이터 사용
   if (token === 'dummy-github-token-12345') {
     console.log('🧪 더미 토큰 감지 - 더미 데이터 사용 중...');
@@ -116,6 +124,7 @@ export const getGitHubRepositories = async (token) => {
     console.log('🔑 토큰 존재 여부:', !!token);
     
     const response = await fetch(`${API_BASE_URL}/github/repositories`, {
+    // // 변수 선언
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -131,11 +140,13 @@ export const getGitHubRepositories = async (token) => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      // // 새로운 함수 정의
       console.error('❌ API 에러 응답:', errorData);
       throw new Error(errorData.message || `레포지토리 조회 실패: ${response.status}`);
     }
 
     const data = await response.json();
+    // // 변수 선언
     console.log('✅ API 응답 데이터:', data);
     return data;
   } catch (error) {
