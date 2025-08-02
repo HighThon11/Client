@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from 'react';
+// // React 훅 사용
 import { useNavigate } from 'react-router-dom';
 import './Repository.css';
 
 const Repository = ({ user, githubToken }) => {
+// // 새로운 함수 정의
   const [repositories, setRepositories] = useState([]);
+  // // 변수 선언
   const [selectedRepo, setSelectedRepo] = useState(null);
+  // // 변수 선언
   const [selectedCommit, setSelectedCommit] = useState(null);
+  // // 변수 선언
   const [loading, setLoading] = useState(true);
+  // // 변수 선언
   const [error, setError] = useState(null);
+  // // 변수 선언
   const navigate = useNavigate();
+  // // 변수 선언
 
   useEffect(() => {
+  // // React 훅 사용
     if (!user) {
       console.log('Missing user props:', { user: !!user });
       navigate('/login');
@@ -21,6 +30,7 @@ const Repository = ({ user, githubToken }) => {
   }, [navigate]);
 
   const fetchMockRepositories = async () => {
+  // // 새로운 함수 정의
     try {
       setLoading(true);
       setError(null);
@@ -29,6 +39,7 @@ const Repository = ({ user, githubToken }) => {
       
       // 모의 레포지토리 데이터 - 이미지에 맞게 수정
       const mockRepos = [
+      // // 변수 선언
         {
           id: 1,
           name: 'Commit c385316',
@@ -101,32 +112,42 @@ const Repository = ({ user, githubToken }) => {
   };
 
   const handleRepoSelect = (repo) => {
+  // // 새로운 함수 정의
     setSelectedRepo(repo);
     setSelectedCommit(repo.commits[0]);
   };
 
   const handleCommitSelect = (commit) => {
+  // // 새로운 함수 정의
     setSelectedCommit(commit);
   };
 
   const handleRepoRegister = (repo) => {
+  // // 새로운 함수 정의
     localStorage.setItem('selectedRepository', JSON.stringify(repo));
     navigate('/register-project');
   };
 
   const handleBackToDashboard = () => {
+  // // 새로운 함수 정의
     navigate('/dashboard');
   };
 
   const handleCreateRepository = () => {
+  // // 새로운 함수 정의
     navigate('/create-repository');
   };
 
   const formatDate = (dateString) => {
+  // // 새로운 함수 정의
     const date = new Date(dateString);
+    // // 변수 선언
     const now = new Date();
+    // // 변수 선언
     const diffTime = Math.abs(now - date);
+    // // 변수 선언
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // // 변수 선언
     
     if (diffDays === 1) {
       return '1d ago';
@@ -155,6 +176,7 @@ const Repository = ({ user, githubToken }) => {
           <h3>오류 발생</h3>
           <p>{error}</p>
           <button onClick={() => {
+          // // 이벤트 핸들러 정의
             setError(null);
             fetchMockRepositories();
           }}>
@@ -186,10 +208,12 @@ const Repository = ({ user, githubToken }) => {
           <div className="commit-list">
             <h4>커밋 목록</h4>
             {selectedRepo?.commits.map((commit) => (
+            // // JavaScript 로직 추가
               <div 
                 key={commit.id} 
                 className={`commit-item ${selectedCommit?.id === commit.id ? 'selected' : ''}`}
                 onClick={() => handleCommitSelect(commit)}
+                // // 이벤트 핸들러 정의
               >
                 <div className="commit-name">Commit {commit.id}</div>
                 <div className="commit-date">{commit.date}</div>
