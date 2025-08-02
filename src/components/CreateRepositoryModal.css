@@ -1,0 +1,185 @@
+/* 모달 레이아웃 스타일 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .modal-content {
+    background: #1A1A1A;
+    padding: 20px 30px 40px;
+    border-radius: 16px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.4s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  
+  /* 기존 CreateRepository.css 의 내용 (일부 수정) */
+  .create-repository-header {
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  
+  .header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .github-logo {
+    margin-bottom: 20px;
+  }
+  
+  .create-repository-header h1 {
+    color: #ffffff;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  
+  .create-repository-header p {
+    color: #cccccc;
+    font-size: 1.1rem;
+    margin: 0;
+  }
+  
+  .back-button {
+    background: #1A1A1A;
+    border: 1px solid #404040;
+    color: #cccccc;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    display: block; /* 모달 내부에서 정렬을 위해 */
+  }
+  
+  .back-button:hover {
+    background: #2A2A2A;
+    border-color: #667eea;
+    color: #667eea;
+  }
+  
+  .create-repository-card {
+    background: #1A1A1A;
+    border: none;
+    border-radius: 16px;
+    padding: 10px; /* 패딩 조정 */
+  }
+  
+  .create-repository-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .dropdowns-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  
+  .form-select {
+    background: #2A2A2A;
+    border: 1px solid #404040;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    color: #ffffff;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .form-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  .repository-select {
+    width: 177px;
+    height: 55px;
+  }
+  
+  .type-select {
+    width: 500px;
+    height: 55px;
+  }
+  
+  .error-message {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .error-message h3 {
+    color: #ef4444;
+    margin: 0 0 5px 0;
+  }
+  
+  .error-message p {
+    color: #cccccc;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  
+  .primary-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-block;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .primary-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  }
+  
+  .primary-button:disabled {
+      background: #555;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+  }
