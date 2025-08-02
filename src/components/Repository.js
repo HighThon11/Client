@@ -5,6 +5,7 @@ import './Repository.css';
 const Repository = ({ user, githubToken }) => {
   const [repositories, setRepositories] = useState([]);
   const [selectedRepo, setSelectedRepo] = useState(null);
+  const [selectedCommit, setSelectedCommit] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -26,59 +27,62 @@ const Repository = ({ user, githubToken }) => {
       
       console.log('Fetching mock repositories');
       
-      // 모의 레포지토리 데이터
+      // 모의 레포지토리 데이터 - 이미지에 맞게 수정
       const mockRepos = [
         {
           id: 1,
-          name: 'sample-project-1',
-          full_name: `${user.email}/sample-project-1`,
-          description: '샘플 프로젝트 1 - 설명',
+          name: 'Commit c385316',
+          full_name: 'username/Commit c385316',
+          description: '프로젝트 디스크립션 - 설명',
           private: false,
-          html_url: 'https://github.com/sample/project1',
+          html_url: 'https://github.com/username/Commit c385316',
           updated_at: '2024-01-15T10:30:00Z',
           language: 'JavaScript',
           stargazers_count: 15,
           forks_count: 3,
-          open_issues_count: 2
-        },
-        {
-          id: 2,
-          name: 'sample-project-2',
-          full_name: `${user.email}/sample-project-2`,
-          description: '샘플 프로젝트 2 - 설명',
-          private: true,
-          html_url: 'https://github.com/sample/project2',
-          updated_at: '2024-01-14T15:45:00Z',
-          language: 'TypeScript',
-          stargazers_count: 8,
-          forks_count: 1,
-          open_issues_count: 0
-        },
-        {
-          id: 3,
-          name: 'code-comment-ai',
-          full_name: `${user.email}/code-comment-ai`,
-          description: 'AI 기반 코드 주석 생성 프로젝트 - 설명',
-          private: false,
-          html_url: 'https://github.com/sample/code-comment-ai',
-          updated_at: '2024-01-13T09:20:00Z',
-          language: 'React',
-          stargazers_count: 25,
-          forks_count: 5,
-          open_issues_count: 3
-        },
-        {
-          id: 4,
-          name: 'api-service',
-          full_name: `${user.email}/api-service`,
-          description: '백엔드 API 서비스 - 설명',
-          private: false,
-          html_url: 'https://github.com/sample/api-service',
-          updated_at: '2024-01-12T14:10:00Z',
-          language: 'Java',
-          stargazers_count: 12,
-          forks_count: 2,
-          open_issues_count: 1
+          open_issues_count: 2,
+          commits: [
+            { 
+              id: 'c385319',
+              message: 'refactor: mbti조방식 변경', 
+              date: '10d ago', 
+              files: 2, 
+              additions: 7, 
+              deletions: 6,
+              author: 'username',
+              committer: 'username'
+            },
+            { 
+              id: 'c385318',
+              message: 'feat: 새로운 기능 추가', 
+              date: '42d ago', 
+              files: 3, 
+              additions: 12, 
+              deletions: 3,
+              author: 'username',
+              committer: 'username'
+            },
+            { 
+              id: 'c385317',
+              message: 'fix: 버그 수정', 
+              date: '45d ago', 
+              files: 1, 
+              additions: 2, 
+              deletions: 1,
+              author: 'username',
+              committer: 'username'
+            },
+            { 
+              id: 'c385316',
+              message: 'docs: 문서 업데이트', 
+              date: '50d ago', 
+              files: 2, 
+              additions: 5, 
+              deletions: 0,
+              author: 'username',
+              committer: 'username'
+            }
+          ]
         }
       ];
 
@@ -86,6 +90,7 @@ const Repository = ({ user, githubToken }) => {
       setRepositories(mockRepos);
       if (mockRepos.length > 0) {
         setSelectedRepo(mockRepos[0]);
+        setSelectedCommit(mockRepos[0].commits[0]);
       }
     } catch (err) {
       console.error('Error fetching mock repositories:', err);
@@ -97,6 +102,11 @@ const Repository = ({ user, githubToken }) => {
 
   const handleRepoSelect = (repo) => {
     setSelectedRepo(repo);
+    setSelectedCommit(repo.commits[0]);
+  };
+
+  const handleCommitSelect = (commit) => {
+    setSelectedCommit(commit);
   };
 
   const handleRepoRegister = (repo) => {
@@ -157,24 +167,6 @@ const Repository = ({ user, githubToken }) => {
 
   return (
     <div className="repository-container">
-      {/* 헤더 */}
-      <div className="repository-header">
-        <div className="header-left">
-          <button onClick={handleBackToDashboard} className="back-button">
-            ← 대시보드로 돌아가기
-          </button>
-        </div>
-        <div className="header-center">
-          <h1>GitHub 레포지토리</h1>
-          <p>코드 변경사항을 추적할 레포지토리를 선택해주세요.</p>
-        </div>
-        <div className="header-right">
-          <button onClick={handleCreateRepository} className="create-button">
-            + 새 레포지토리
-          </button>
-        </div>
-      </div>
-
       <div className="repository-content">
         {/* 왼쪽 사이드바 */}
         <div className="repository-sidebar">
@@ -191,16 +183,16 @@ const Repository = ({ user, githubToken }) => {
             </div>
           </div>
 
-          <div className="repository-list">
-            <h4>레포지토리 목록</h4>
-            {repositories.map((repo) => (
+          <div className="commit-list">
+            <h4>커밋 목록</h4>
+            {selectedRepo?.commits.map((commit) => (
               <div 
-                key={repo.id} 
-                className={`repository-item ${selectedRepo?.id === repo.id ? 'selected' : ''}`}
-                onClick={() => handleRepoSelect(repo)}
+                key={commit.id} 
+                className={`commit-item ${selectedCommit?.id === commit.id ? 'selected' : ''}`}
+                onClick={() => handleCommitSelect(commit)}
               >
-                <div className="repo-name">{repo.name}</div>
-                <div className="repo-date">{formatDate(repo.updated_at)}</div>
+                <div className="commit-name">Commit {commit.id}</div>
+                <div className="commit-date">{commit.date}</div>
               </div>
             ))}
           </div>
@@ -208,73 +200,145 @@ const Repository = ({ user, githubToken }) => {
 
         {/* 메인 콘텐츠 */}
         <div className="repository-main">
-          {selectedRepo ? (
-            <div className="repo-detail">
-              <div className="repo-header">
-                <h2>{selectedRepo.name}</h2>
-                <div className="repo-meta">
-                  <span className="repo-url">GitHub - {selectedRepo.full_name}</span>
+          {selectedRepo && selectedCommit ? (
+            <div className="commit-detail">
+              <div className="commit-header">
+                <h2>Commit {selectedCommit.id}</h2>
+                <div className="commit-meta">
+                  <span className="commit-url">GitHub - {selectedRepo.full_name}</span>
                 </div>
               </div>
 
-              <div className="repo-stats">
+              <div className="commit-stats">
                 <div className="stat-card">
                   <div className="stat-icon">📅</div>
                   <div className="stat-content">
-                    <div className="stat-label">마지막 업데이트</div>
-                    <div className="stat-value">{new Date(selectedRepo.updated_at).toLocaleDateString('ko-KR')}</div>
+                    <div className="stat-label">마지막 커밋</div>
+                    <div className="stat-value">2025-08-02</div>
                   </div>
                 </div>
                 <div className="stat-card">
                   <div className="stat-icon">📁</div>
                   <div className="stat-content">
-                    <div className="stat-label">프로젝트 타입</div>
-                    <div className="stat-value">{selectedRepo.private ? 'Private' : 'Public'}</div>
+                    <div className="stat-label">추적 파일 수</div>
+                    <div className="stat-value">123</div>
                   </div>
                 </div>
               </div>
 
-              <div className="repo-description">
-                <h3>프로젝트 설명</h3>
-                <p>{selectedRepo.description || '설명이 없습니다.'}</p>
+              <div className="commit-message">
+                <h3>커밋 메시지</h3>
+                <p>{selectedCommit.message}</p>
+                <p>P deploy (#15)</p>
               </div>
 
-              <div className="repo-stats-detail">
-                <div className="stats-grid">
-                  <div className="stat-item">
-                    <div className="stat-number">{selectedRepo.stargazers_count}</div>
-                    <div className="stat-label">Stars</div>
+              <div className="file-changes">
+                <div className="changes-summary">
+                  <span>{selectedCommit.files} files changed +{selectedCommit.additions} -{selectedCommit.deletions} lines changed</span>
+                </div>
+
+                <div className="file-browser">
+                  <div className="file-browser-left">
+                    <div className="search-bar">
+                      <input type="text" placeholder="Q Filter files..." />
+                    </div>
+                    <div className="file-tree">
+                      <div className="folder-item">
+                        <span className="folder-icon">📁</span>
+                        <span>src/main/java/com/tina/tina...</span>
+                      </div>
+                      <div className="folder-item">
+                        <span className="folder-icon">📁</span>
+                        <span>domain/repository</span>
+                      </div>
+                      <div className="file-item">
+                        <span className="file-icon">📄</span>
+                        <span>MbtiCompatibilityReposit..</span>
+                      </div>
+                      <div className="folder-item">
+                        <span className="folder-icon">📁</span>
+                        <span>service/implementation</span>
+                      </div>
+                      <div className="file-item">
+                        <span className="file-icon">📄</span>
+                        <span>MbtiReader.java</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="stat-item">
-                    <div className="stat-number">{selectedRepo.forks_count}</div>
-                    <div className="stat-label">Forks</div>
-                  </div>
-                  <div className="stat-item">
-                    <div className="stat-number">{selectedRepo.open_issues_count}</div>
-                    <div className="stat-label">Issues</div>
-                  </div>
-                  <div className="stat-item">
-                    <div className="stat-number">{selectedRepo.language}</div>
-                    <div className="stat-label">Language</div>
+
+                  <div className="code-viewer">
+                    <div className="search-bar">
+                      <input type="text" placeholder="Q Search within code" />
+                    </div>
+                    <div className="code-diff">
+                      <div className="file-header">
+                        <span>src/main/java/com/tina/tina_server/domain/mbti/domain/repository/MbtiCompatibilityRepository.java</span>
+                      </div>
+                      <div className="diff-header">
+                        <span>@@ -5,5 +5,8 @@</span>
+                      </div>
+                      <div className="diff-content">
+                        <div className="diff-line unchanged">
+                          <span className="line-number">5</span>
+                          <span className="line-content">package com.tina.tina_server.domain.mbti.domain.repository;</span>
+                        </div>
+                        <div className="diff-line unchanged">
+                          <span className="line-number">6</span>
+                          <span className="line-content"></span>
+                        </div>
+                        <div className="diff-line unchanged">
+                          <span className="line-number">7</span>
+                          <span className="line-content">import org.springframework.data.jpa.repository.JpaRepository;</span>
+                        </div>
+                        <div className="diff-line removed">
+                          <span className="line-number">8</span>
+                          <span className="line-content">- public interface MbtiCompatibilityRepository extends JpaRepository&lt;MbtiCompatibility, Long&gt; {'{'}</span>
+                        </div>
+                        <div className="diff-line added">
+                          <span className="line-number">8</span>
+                          <span className="line-content">+ public interface MbtiCompatibilityRepository extends JpaRepository&lt;MbtiCompatibility, Long&gt;, MbtiCompatibilityRepositoryCustom {'{'}</span>
+                        </div>
+                        <div className="diff-line added">
+                          <span className="line-number">9</span>
+                          <span className="line-content">+     // 기본 조회 메서드</span>
+                        </div>
+                        <div className="diff-line added">
+                          <span className="line-number">10</span>
+                          <span className="line-content">+     List&lt;MbtiCompatibility&gt; findByMbtiType(String mbtiType);</span>
+                        </div>
+                        <div className="diff-line added">
+                          <span className="line-number">11</span>
+                          <span className="line-content">+ </span>
+                        </div>
+                      </div>
+
+                      <div className="file-separator"></div>
+
+                      <div className="file-header">
+                        <span>src/main/java/com/tina/tina_server/domain/mbti/service/implementation/MbtiReader.java</span>
+                      </div>
+                      <div className="diff-header">
+                        <span>@@ -13,11 +13,9 @@</span>
+                      </div>
+                      <div className="diff-content">
+                        <div className="diff-line removed">
+                          <span className="line-number">13</span>
+                          <span className="line-content">-     private final MbtiCompatibilityRepository mbtiCompatibilityRepository;</span>
+                        </div>
+                        <div className="diff-line added">
+                          <span className="line-number">13</span>
+                          <span className="line-content">+     private final MbtiCompatibilityRepository mbtiCompatibilityRepository;</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="repo-actions">
-                <button 
-                  className="register-button"
-                  onClick={() => handleRepoRegister(selectedRepo)}
-                >
-                  이 레포지토리로 프로젝트 등록하기
+              <div className="commit-actions">
+                <button className="apply-comment-button">
+                  주석 적용해서 커밋 후 푸시하기
                 </button>
-                <a 
-                  href={selectedRepo.html_url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="view-github-button"
-                >
-                  GitHub에서 보기
-                </a>
               </div>
             </div>
           ) : (
