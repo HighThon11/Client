@@ -35,12 +35,8 @@ function App() {
   };
 
   const handleSignup = (signupData) => {
-    // 사용자 정보를 Local Storage에 저장
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    users.push(signupData);
-    localStorage.setItem('users', JSON.stringify(users));
-    
     // 회원가입 완료 후 로그인 화면으로 전환
+    // 서버에서 이미 사용자 정보가 저장되었으므로 로컬 스토리지에 별도 저장하지 않음
     setShowSignup(false);
   };
 
