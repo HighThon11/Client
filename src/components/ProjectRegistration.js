@@ -239,7 +239,7 @@ const ProjectRegistration = ({ user, githubToken }) => {
                   {...register('customRepoUrl', { 
                     required: '리포지토리 URL을 입력해주세요',
                     pattern: {
-                      value: /^https?:\/\/github\.com\/[^\/]+\/[^\/]+$/,
+                      value: /^https?:\/\/github\.com\/[^/]+\/[^/]+$/,
                       message: '유효한 GitHub 리포지토리 URL을 입력해주세요'
                     }
                   })}

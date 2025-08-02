@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Octokit } from '@octokit/rest';
 import './Dashboard.css';
 
 const Dashboard = ({ user, githubToken }) => {
@@ -30,8 +29,8 @@ const Dashboard = ({ user, githubToken }) => {
           fileName: 'src/App.js',
           changeType: 'modified',
           timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          comment: '// 이 부분에서 null 체크가 추가되었습니다. NPE 방지를 위한 조치로 보입니다.',
-          diff: '+ if (user && user.name) {\n+   console.log(user.name);\n+ }'
+          comment: '이 부분에서 null 체크가 추가되었습니다. NPE 방지를 위한 조치로 보입니다.',
+          diff: '+ if (user && user.name) {\\n+   console.log(user.name);\\n+ }'
         },
         {
           id: 2,
@@ -39,8 +38,8 @@ const Dashboard = ({ user, githubToken }) => {
           fileName: 'src/utils/api.js',
           changeType: 'added',
           timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-          comment: '// 새로운 API 엔드포인트가 추가되었습니다. 사용자 인증을 위한 토큰 검증 로직입니다.',
-          diff: '+ export const validateToken = async (token) => {\n+   try {\n+     const response = await fetch(\'/api/validate\', {\n+       headers: { Authorization: `Bearer ${token}` }\n+     });\n+     return response.ok;\n+   } catch (error) {\n+     return false;\n+   }\n+ };'
+          comment: '새로운 API 엔드포인트가 추가되었습니다. 사용자 인증을 위한 토큰 검증 로직입니다.',
+          diff: '+ export const validateToken = async (token) => {\\n+   try {\\n+     const response = await fetch(\'/api/validate\', {\\n+       headers: { Authorization: `Bearer ${token}` }\\n+     });\\n+     return response.ok;\\n+   } catch (error) {\\n+     return false;\\n+   }\\n+ };'
         }
       ];
 

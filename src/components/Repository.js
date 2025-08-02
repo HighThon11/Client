@@ -6,7 +6,6 @@ const Repository = () => {
   const [repositories, setRepositories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedRepo, setSelectedRepo] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,7 +19,7 @@ const Repository = () => {
     }
 
     try {
-      const user = JSON.parse(userData);
+      JSON.parse(userData);
       fetchRepositories(githubToken);
     } catch (error) {
       console.error('Error parsing user data:', error);
@@ -55,7 +54,6 @@ const Repository = () => {
   };
 
   const handleRepoSelect = (repo) => {
-    setSelectedRepo(repo);
     // 선택된 레포지토리를 로컬 스토리지에 저장
     localStorage.setItem('selectedRepository', JSON.stringify(repo));
     // 프로젝트 등록 페이지로 이동

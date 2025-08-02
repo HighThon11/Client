@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://10.10.6.74:8081/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8081/api';
 
 /**
  * 회원가입 API 호출

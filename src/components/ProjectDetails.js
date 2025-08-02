@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Octokit } from '@octokit/rest';
 import './ProjectDetails.css';
 
 const ProjectDetails = ({ user, githubToken }) => {
@@ -41,8 +40,8 @@ const ProjectDetails = ({ user, githubToken }) => {
           changeType: 'modified',
           timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
           author: user?.name || user?.login,
-          comment: '// 이 부분에서 null 체크가 추가되었습니다. NPE 방지를 위한 조치로 보입니다.',
-          diff: '+ if (user && user.name) {\n+   console.log(user.name);\n+ }',
+          comment: '이 부분에서 null 체크가 추가되었습니다. NPE 방지를 위한 조치로 보입니다.',
+          diff: '+ if (user && user.name) {\\n+   console.log(user.name);\\n+ }',
           status: 'reviewed'
         },
         {
@@ -52,8 +51,8 @@ const ProjectDetails = ({ user, githubToken }) => {
           changeType: 'added',
           timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
           author: user?.name || user?.login,
-          comment: '// 새로운 API 엔드포인트가 추가되었습니다. 사용자 인증을 위한 토큰 검증 로직입니다.',
-          diff: '+ export const validateToken = async (token) => {\n+   try {\n+     const response = await fetch(\'/api/validate\', {\n+       headers: { Authorization: `Bearer ${token}` }\n+     });\n+     return response.ok;\n+   } catch (error) {\n+     return false;\n+   }\n+ };',
+          comment: '새로운 API 엔드포인트가 추가되었습니다. 사용자 인증을 위한 토큰 검증 로직입니다.',
+          diff: '+ export const validateToken = async (token) => {\\n+   try {\\n+     const response = await fetch(\'/api/validate\', {\\n+       headers: { Authorization: `Bearer ${token}` }\\n+     });\\n+     return response.ok;\\n+   } catch (error) {\\n+     return false;\\n+   }\\n+ };',
           status: 'pending'
         },
         {
@@ -63,8 +62,8 @@ const ProjectDetails = ({ user, githubToken }) => {
           changeType: 'deleted',
           timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
           author: user?.name || user?.login,
-          comment: '// 사용하지 않는 import 문이 제거되었습니다. 코드 정리를 위한 리팩토링입니다.',
-          diff: '- import unusedComponent from \'./components/UnusedComponent\';\n- import { unusedUtil } from \'./utils/unused\'',
+          comment: '사용하지 않는 import 문이 제거되었습니다. 코드 정리를 위한 리팩토링입니다.',
+          diff: '- import unusedComponent from \'./components/UnusedComponent\';\\n- import { unusedUtil } from \'./utils/unused\'',
           status: 'reviewed'
         }
       ];

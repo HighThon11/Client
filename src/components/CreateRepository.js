@@ -8,7 +8,7 @@ const CreateRepository = () => {
     repositoryType: ''
   });
   const [repositories, setRepositories] = useState([]);
-  const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -52,7 +52,6 @@ const CreateRepository = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
 
     try {
@@ -74,8 +73,6 @@ const CreateRepository = () => {
     } catch (err) {
       setError(err.message);
       console.error('Error selecting repository:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
