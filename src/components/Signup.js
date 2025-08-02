@@ -60,8 +60,8 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
   return (
     <div className="signup-container">
       <div className="signup-card">
-        <h2>회원가입</h2>
-        <p className="signup-subtitle">Code Comment AI 서비스에 가입하세요</p>
+        <h2>잊은코드</h2>
+        <p className="signup-subtitle">회원가입</p>
         
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="form-group">

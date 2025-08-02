@@ -27,7 +27,6 @@ code {
 
 .container {
   min-height: calc(100vh - 70px);
-  padding-top: 20px;
 }
 
 /* 공통 버튼 스타일 */
