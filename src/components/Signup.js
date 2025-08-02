@@ -1,51 +1,58 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { signupUser } from '../api/auth';
-import './Signup.css';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { signupUser } from "../api/auth";
+import "./Signup.css";
 
 const Signup = ({ onSignup, onSwitchToLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const { register, handleSubmit, formState: { errors }, watch } = useForm();
-  // const [showPatGuide, setShowPatGuide] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [showPatGuide, setShowPatGuide] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm();
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     try {
-      // 프로토타입 버전에서는 간단한 GitHub PAT 형식 검증만 수행
-      // if (!data.githubToken || data.githubToken.length < 10) {
-      //   throw new Error('유효한 GitHub Personal Access Token을 입력해주세요.');
-      // }
+      // GitHub PAT 형식 검증
+      if (!data.githubToken || data.githubToken.length < 10) {
+        throw new Error("유효한 GitHub Personal Access Token을 입력해주세요.");
+      }
 
       // 서버 API에 회원가입 요청
       const signupResult = await signupUser({
         email: data.email,
         password: data.password,
-        // githubToken: data.githubToken
+        githubToken: data.githubToken,
       });
 
       // 회원가입 성공
       const signupData = {
         email: data.email,
-        // githubToken: data.githubToken,
+        githubToken: data.githubToken,
         createdAt: new Date().toISOString(),
-        ...signupResult // 서버에서 반환된 추가 데이터
+        ...signupResult, // 서버에서 반환된 추가 데이터
       };
 
       onSignup(signupData);
-      setSuccess('회원가입이 완료되었습니다! 로그인 화면으로 이동합니다.');
-      
+      setSuccess("회원가입이 완료되었습니다! 로그인 화면으로 이동합니다.");
+
       // 2초 후 로그인 화면으로 전환
       setTimeout(() => {
         onSwitchToLogin();
       }, 2000);
     } catch (err) {
-      console.error('회원가입 실패:', err);
-      setError(err.message || '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+      console.error("회원가입 실패:", err);
+      setError(
+        err.message || "회원가입 중 오류가 발생했습니다. 다시 시도해주세요."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -55,7 +62,12 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
     <div className="signup-container">
       <div className="signup-card">
         <h2>
-          <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            width="200"
+            height="200"
+            viewBox="0 0 200 200"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <defs>
               <style>
                 {`
@@ -65,30 +77,44 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
                 `}
               </style>
             </defs>
-            <path className="cls-1" d="M92.48,42.3v32.26h-2.57v2.78h-2.48v2.52h-2.57v2.44h-2.48v2.43h-2.66v2.87h-33.95v-2.87h-2.57v-2.43h-2.48v-2.44h-2.57v-2.52h-2.48v-2.78h-2.57v-32.26h2.57v-2.7h2.48v-2.61h2.57v-2.35h2.48v-2.43h2.57v-2.44h33.95v2.44h2.66v2.43h2.48v2.35h2.57v2.61h2.48v2.7h2.57ZM75.68,49.17h-1.93v-1.91h-1.74v-1.91h-18.17v1.91h-1.83v1.91h-2.11v19.22h2.11v1.74h1.83v1.91h18.17v-1.91h1.74v-1.74h1.93v-19.22Z"/>
-            <path className="cls-1" d="M147.44,55.26v2.52h2.75v2.52h2.75v2.61h2.84v2.52h2.75v2.52h2.75v2.61h2.75v2.43h2.84v9.83h-2.84v2.26h-2.75v2.52h-6.42v-2.52h-2.84v-2.52h-2.75v-2.61h-2.75v-2.52h-2.84v-2.52h-2.75v-2.61h-2.75v-2.52h-3.85v2.52h-2.84v2.61h-2.75v2.52h-2.75v2.52h-2.84v2.61h-2.75v2.52h-2.75v2.52h-6.52v-2.52h-2.75v-2.26h-2.75v-9.83h2.75v-2.43h2.75v-2.61h2.84v-2.52h2.75v-2.52h2.75v-2.61h2.75v-2.52h2.84v-2.52h2.02v-9.74h-17.53v-2.87h-3.03v-9.74h3.03v-2.87h53.41v2.87h3.03v9.74h-3.03v2.87h-17.44v9.74h1.93Z"/>
-            <path className="cls-1" d="M36.13,152.57v-2.87h-3.03v-9.83h3.03v-2.87h36.89v-7.91h-36.89v-2.87h-3.03v-9.83h3.03v-2.87h52.12v2.87h3.03v50.96h-3.03v2.87h-12.21v-2.87h-3.03v-14.78h-36.89Z"/>
-            <path className="cls-1" d="M162.58,116.22h3.03v9.83h-3.03v2.87h-37.81v25.74h37.81v2.87h3.03v9.83h-3.03v2.87h-52.12v-2.87h-3.03v-51.13h3.03v-2.87h52.12v2.87Z"/>
+            <path
+              className="cls-1"
+              d="M92.48,42.3v32.26h-2.57v2.78h-2.48v2.52h-2.57v2.44h-2.48v2.43h-2.66v2.87h-33.95v-2.87h-2.57v-2.43h-2.48v-2.44h-2.57v-2.52h-2.48v-2.78h-2.57v-32.26h2.57v-2.7h2.48v-2.61h2.57v-2.35h2.48v-2.43h2.57v-2.44h33.95v2.44h2.66v2.43h2.48v2.35h2.57v2.61h2.48v2.7h2.57ZM75.68,49.17h-1.93v-1.91h-1.74v-1.91h-18.17v1.91h-1.83v1.91h-2.11v19.22h2.11v1.74h1.83v1.91h18.17v-1.91h1.74v-1.74h1.93v-19.22Z"
+            />
+            <path
+              className="cls-1"
+              d="M147.44,55.26v2.52h2.75v2.52h2.75v2.61h2.84v2.52h2.75v2.52h2.75v2.61h2.75v2.43h2.84v9.83h-2.84v2.26h-2.75v2.52h-6.42v-2.52h-2.84v-2.52h-2.75v-2.61h-2.75v-2.52h-2.84v-2.52h-2.75v-2.61h-2.75v-2.52h-3.85v2.52h-2.84v2.61h-2.75v2.52h-2.75v2.52h-2.84v2.61h-2.75v2.52h-2.75v2.52h-6.52v-2.52h-2.75v-2.26h-2.75v-9.83h2.75v-2.43h2.75v-2.61h2.84v-2.52h2.75v-2.52h2.75v-2.61h2.75v-2.52h2.84v-2.52h2.02v-9.74h-17.53v-2.87h-3.03v-9.74h3.03v-2.87h53.41v2.87h3.03v9.74h-3.03v2.87h-17.44v9.74h1.93Z"
+            />
+            <path
+              className="cls-1"
+              d="M36.13,152.57v-2.87h-3.03v-9.83h3.03v-2.87h36.89v-7.91h-36.89v-2.87h-3.03v-9.83h3.03v-2.87h52.12v2.87h3.03v50.96h-3.03v2.87h-12.21v-2.87h-3.03v-14.78h-36.89Z"
+            />
+            <path
+              className="cls-1"
+              d="M162.58,116.22h3.03v9.83h-3.03v2.87h-37.81v25.74h37.81v2.87h3.03v9.83h-3.03v2.87h-52.12v-2.87h-3.03v-51.13h3.03v-2.87h52.12v2.87Z"
+            />
           </svg>
         </h2>
         <p className="signup-subtitle">회원가입</p>
-        
+
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="form-group">
             <label htmlFor="email">이메일</label>
             <input
               type="email"
               id="email"
-              {...register('email', { 
-                required: '이메일을 입력해주세요',
+              {...register("email", {
+                required: "이메일을 입력해주세요",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: '유효한 이메일 주소를 입력해주세요'
-                }
+                  message: "유효한 이메일 주소를 입력해주세요",
+                },
               })}
               placeholder="your@email.com"
             />
-            {errors.email && <span className="error">{errors.email.message}</span>}
+            {errors.email && (
+              <span className="error">{errors.email.message}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -96,16 +122,18 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
             <input
               type="password"
               id="password"
-              {...register('password', { 
-                required: '비밀번호를 입력해주세요',
+              {...register("password", {
+                required: "비밀번호를 입력해주세요",
                 minLength: {
                   value: 6,
-                  message: '비밀번호는 최소 6자 이상이어야 합니다'
-                }
+                  message: "비밀번호는 최소 6자 이상이어야 합니다",
+                },
               })}
               placeholder="비밀번호를 입력하세요"
             />
-            {errors.password && <span className="error">{errors.password.message}</span>}
+            {errors.password && (
+              <span className="error">{errors.password.message}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -113,21 +141,23 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
             <input
               type="password"
               id="confirmPassword"
-              {...register('confirmPassword', { 
-                required: '비밀번호를 다시 입력해주세요',
-                validate: value => value === watch('password') || '비밀번호가 일치하지 않습니다'
+              {...register("confirmPassword", {
+                required: "비밀번호를 다시 입력해주세요",
+                validate: (value) =>
+                  value === watch("password") || "비밀번호가 일치하지 않습니다",
               })}
               placeholder="비밀번호를 다시 입력하세요"
             />
-            {errors.confirmPassword && <span className="error">{errors.confirmPassword.message}</span>}
+            {errors.confirmPassword && (
+              <span className="error">{errors.confirmPassword.message}</span>
+            )}
           </div>
 
-          {/* GitHub 토큰 입력 필드 주석 처리
           <div className="form-group">
             <div className="label-container">
               <label htmlFor="githubToken">GitHub Personal Access Token</label>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="help-btn"
                 onClick={() => setShowPatGuide(!showPatGuide)}
               >
@@ -137,28 +167,34 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
             <input
               type="password"
               id="githubToken"
-              {...register('githubToken', { 
-                required: 'GitHub Personal Access Token을 입력해주세요'
+              {...register("githubToken", {
+                required: "GitHub Personal Access Token을 입력해주세요",
+                pattern: {
+                  value: /^ghp_[a-zA-Z0-9]{36}$/,
+                  message:
+                    "올바른 GitHub Personal Access Token 형식을 입력해주세요 (ghp_로 시작)",
+                },
               })}
               placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
             />
-            {errors.githubToken && <span className="error">{errors.githubToken.message}</span>}
+            {errors.githubToken && (
+              <span className="error">{errors.githubToken.message}</span>
+            )}
           </div>
-          */}
 
           {error && <div className="error-message">{error}</div>}
           {success && <div className="success-message">{success}</div>}
 
           <button type="submit" className="signup-btn" disabled={isLoading}>
-            {isLoading ? '가입 중...' : '회원가입'}
+            {isLoading ? "가입 중..." : "회원가입"}
           </button>
         </form>
 
         <div className="login-link">
           <p>
-            이미 계정이 있으신가요?{' '}
-            <button 
-              type="button" 
+            이미 계정이 있으신가요?{" "}
+            <button
+              type="button"
               className="link-button"
               onClick={onSwitchToLogin}
             >
@@ -167,8 +203,7 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
           </p>
         </div>
       </div>
-      
-      {/* GitHub PAT 가이드 주석 처리
+
       {showPatGuide && (
         <div className="pat-guide">
           <h4>GitHub Personal Access Token 생성 방법:</h4>
@@ -180,16 +215,20 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
             <li>"Generate new token" → "Generate new token (classic)" 클릭</li>
             <li>Note에 "Code Comment AI" 입력</li>
             <li>Expiration 선택 (권장: 90 days)</li>
-            <li>Scopes에서 <strong>"repo"</strong> 체크 (전체 repo 권한)</li>
+            <li>
+              Scopes에서 <strong>"repo"</strong> 체크 (전체 repo 권한)
+            </li>
             <li>"Generate token" 클릭</li>
             <li>생성된 토큰을 복사하여 위에 입력</li>
           </ol>
-          <p><strong>⚠️ 주의:</strong> 토큰은 한 번만 표시되므로 안전한 곳에 저장하세요!</p>
+          <p>
+            <strong>⚠️ 주의:</strong> 토큰은 한 번만 표시되므로 안전한 곳에
+            저장하세요!
+          </p>
         </div>
       )}
-      */}
     </div>
   );
 };
 
-export default Signup; 
+export default Signup;

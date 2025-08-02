@@ -19,8 +19,21 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
         password: data.password
       });
 
-      // 로그인 성공
-      onLogin(loginResult.user);
+      // 로그인 성공 - 서버 응답 구조에 맞게 수정
+      console.log('로그인 응답:', loginResult);
+      
+      // 서버에서 받은 토큰들을 사용하여 사용자 정보 생성
+      const userData = {
+        id: 1, // 서버에서 사용자 ID를 받아야 함
+        login: data.email.split('@')[0], // 임시로 이메일에서 추출
+        name: data.email.split('@')[0], // 임시로 이메일에서 추출
+        email: data.email,
+        avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.email.split('@')[0])}&background=random`,
+        html_url: `https://github.com/${data.email.split('@')[0]}`
+      };
+      
+      // 토큰과 사용자 정보를 함께 전달
+      onLogin(userData, loginResult.githubToken, loginResult.token);
     } catch (err) {
       console.error('로그인 실패:', err);
       setError(err.message || '로그인 중 오류가 발생했습니다. 다시 시도해주세요.');

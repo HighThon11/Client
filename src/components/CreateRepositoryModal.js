@@ -1,108 +1,239 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getGitHubRepositories } from '../api/auth';
-import './CreateRepositoryModal.css'; // 모달 전용 CSS import
+import React, { useState, useEffect } from "react";
+import { getGitHubRepositories, saveRepository } from "../api/auth";
+import "./CreateRepositoryModal.css";
 
 const CreateRepositoryModal = ({ user, githubToken, onClose }) => {
-  const [formData, setFormData] = useState({
-    selectedRepository: '',
-    repositoryType: ''
-  });
   const [repositories, setRepositories] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [selectedRepo, setSelectedRepo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    if (user && githubToken) {
-      fetchRepositories(githubToken);
-    }
-  }, [user, githubToken]);
+    fetchRepositories();
+  }, []);
 
-  const fetchRepositories = async (token) => {
-    // ... 기존 fetchRepositories 로직과 동일 ...
+  const fetchRepositories = async () => {
     try {
-        const repos = await getGitHubRepositories(token);
-        setRepositories(repos);
-      } catch (err) {
-        console.error('❌ 레포지토리 가져오기 실패:', err);
-        const dummyRepos = [
-          { id: 1, name: 'my-react-app' },
-          { id: 2, name: 'api-service' },
-          { id: 3, name: 'portfolio-website' }
-        ];
-        setRepositories(dummyRepos);
-      }
-  };
+      setLoading(true);
+      setError(null);
+      console.log("🚀 CreateRepositoryModal - GitHub 레포지토리 조회 시작");
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      if (!formData.selectedRepository || !formData.repositoryType) {
-        throw new Error('모든 필드를 선택해주세요.');
-      }
-      const selectedRepo = repositories.find(repo => repo.id.toString() === formData.selectedRepository);
-      if (!selectedRepo) {
-        throw new Error('선택된 레포지토리를 찾을 수 없습니다.');
-      }
-      localStorage.setItem('selectedRepository', JSON.stringify(selectedRepo));
-      onClose(); // 성공 시 모달 닫기
-      navigate('/register-project');
+      const repos = await getGitHubRepositories();
+      console.log(
+        "✅ CreateRepositoryModal - GitHub 레포지토리 가져오기 성공:",
+        repos.length
+      );
+      setRepositories(repos);
     } catch (err) {
-      setError(err.message);
+      console.error(
+        "❌ CreateRepositoryModal - GitHub 레포지토리 가져오기 실패:",
+        err
+      );
+      setError("GitHub 레포지토리 목록을 가져오는데 실패했습니다.");
+
+      // 더미 데이터 사용
+      const dummyRepos = [
+        {
+          id: 1,
+          name: "my-react-app",
+          full_name: "user/my-react-app",
+          description: "React로 만든 웹 애플리케이션",
+          private: false,
+          html_url: "https://github.com/user/my-react-app",
+          default_branch: "main",
+          created_at: "2023-01-01T00:00:00Z",
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: 2,
+          name: "api-service",
+          full_name: "user/api-service",
+          description: "Node.js API 서버",
+          private: true,
+          html_url: "https://github.com/user/api-service",
+          default_branch: "main",
+          created_at: "2023-02-01T00:00:00Z",
+          updated_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        },
+        {
+          id: 3,
+          name: "portfolio-website",
+          full_name: "user/portfolio-website",
+          description: "개인 포트폴리오 웹사이트",
+          private: false,
+          html_url: "https://github.com/user/portfolio-website",
+          default_branch: "main",
+          created_at: "2023-03-01T00:00:00Z",
+          updated_at: new Date(
+            Date.now() - 2 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+        },
+      ];
+      setRepositories(dummyRepos);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOverlayClick = (e) => {
-    if (e.target.className === 'modal-overlay') {
+  const handleRepoSelect = (repo) => {
+    setSelectedRepo(repo);
+  };
+
+  const handleSaveRepository = async () => {
+    if (!selectedRepo) {
+      setError("저장할 레포지토리를 선택해주세요.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError(null);
+
+      const repositoryData = {
+        repositoryId: selectedRepo.id,
+        repositoryName: selectedRepo.name,
+        repositoryFullName: selectedRepo.full_name,
+        repositoryDescription: selectedRepo.description || "",
+        repositoryUrl: selectedRepo.html_url,
+        defaultBranch: selectedRepo.default_branch,
+        isPrivate: selectedRepo.private,
+        repositoryCreatedAt: selectedRepo.created_at,
+        repositoryUpdatedAt: selectedRepo.updated_at,
+      };
+
+      console.log("💾 레포지토리 저장 시작:", repositoryData);
+      await saveRepository(repositoryData);
+
+      setSuccess(true);
+      console.log("✅ 레포지토리 저장 성공");
+
+      // 2초 후 모달 닫기
+      setTimeout(() => {
+        onClose();
+      }, 2000);
+    } catch (error) {
+      console.error("❌ 레포지토리 저장 실패:", error);
+      setError("레포지토리 저장에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleClose = () => {
+    if (!saving) {
       onClose();
     }
   };
 
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal-content">
-        <div className="create-repository-header">
-          <button onClick={onClose} className="back-button">
-            ← 레포지토리 목록으로 돌아가기
+    <div className="modal-overlay" onClick={handleClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>새 레포지토리 추가</h2>
+          <button
+            className="close-button"
+            onClick={handleClose}
+            disabled={saving}
+          >
+            ×
           </button>
-          <div className="header-content">
-            <svg className="github-logo" width="98" height="96" viewBox="0 0 98 96" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z" fill="#fff"/></svg>
-            <h1>내 GitHub 저장소 배포하기</h1>
-            <p>배포하길 원하는 GitHub 저장소를 선택해주세요</p>
-          </div>
         </div>
-        <div className="create-repository-card">
-          <form onSubmit={handleSubmit} className="create-repository-form">
-            {error && <div className="error-message"><h3>오류 발생</h3><p>{error}</p></div>}
-            <div className="dropdowns-container">
-              <div className="form-group">
-                <select id="selectedRepository" name="selectedRepository" value={formData.selectedRepository} onChange={handleInputChange} required className="form-select repository-select">
-                  <option value="">저장소</option>
-                  {repositories.map((repo) => (<option key={repo.id} value={repo.id}>{repo.name}</option>))}
-                </select>
-              </div>
-              <div className="form-group">
-                <select id="repositoryType" name="repositoryType" value={formData.repositoryType} onChange={handleInputChange} required className="form-select type-select">
-                  <option value="">저장소를 선택하세요</option>
-                  <option value="public">Public</option>
-                  <option value="private">Private</option>
-                </select>
-              </div>
+
+        <div className="modal-body">
+          {loading ? (
+            <div className="loading-container">
+              <div className="spinner"></div>
+              <p>GitHub 레포지토리를 불러오는 중...</p>
             </div>
-            <button type="submit" disabled={loading} className="primary-button" style={{marginTop: '25px', width: '100%'}}>
-              {loading ? '처리 중...' : '선택 완료 및 배포하기'}
-            </button>
-          </form>
+          ) : error ? (
+            <div className="error-message">
+              <p>{error}</p>
+              <button onClick={fetchRepositories} className="retry-button">
+                다시 시도
+              </button>
+            </div>
+          ) : success ? (
+            <div className="success-message">
+              <p>✅ 레포지토리가 성공적으로 저장되었습니다!</p>
+            </div>
+          ) : (
+            <>
+              <div className="repository-selection">
+                <label htmlFor="repository-select">
+                  저장할 레포지토리를 선택하세요:
+                </label>
+                <select
+                  id="repository-select"
+                  value={selectedRepo?.id || ""}
+                  onChange={(e) => {
+                    const repo = repositories.find(
+                      (r) => r.id === parseInt(e.target.value)
+                    );
+                    setSelectedRepo(repo);
+                  }}
+                  className="repository-select"
+                >
+                  <option value="">저장소를 선택하세요</option>
+                  {repositories.map((repo) => (
+                    <option key={repo.id} value={repo.id}>
+                      {repo.name} {repo.private ? "(Private)" : "(Public)"}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {selectedRepo && (
+                <div className="selected-repo-info">
+                  <h3>선택된 레포지토리</h3>
+                  <div className="repo-card">
+                    <div className="repo-header">
+                      <h4>{selectedRepo.name}</h4>
+                      <span
+                        className={`repo-visibility ${
+                          selectedRepo.private ? "private" : "public"
+                        }`}
+                      >
+                        {selectedRepo.private ? "Private" : "Public"}
+                      </span>
+                    </div>
+                    <p className="repo-description">
+                      {selectedRepo.description || "설명이 없습니다."}
+                    </p>
+                    <div className="repo-meta">
+                      <span>기본 브랜치: {selectedRepo.default_branch}</span>
+                      <a
+                        href={selectedRepo.html_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="github-link"
+                      >
+                        🔗 GitHub에서 보기
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button
+                  onClick={handleSaveRepository}
+                  disabled={!selectedRepo || saving}
+                  className="save-button"
+                >
+                  {saving ? "저장 중..." : "레포지토리 저장"}
+                </button>
+                <button
+                  onClick={handleClose}
+                  className="cancel-button"
+                  disabled={saving}
+                >
+                  취소
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

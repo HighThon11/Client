@@ -2,7 +2,7 @@
   max-width: 8000px;
   margin: 0 auto;
   padding: 30px 20px;
-  background: #1A1A1A;
+  background: #1a1a1a;
   min-height: 100vh;
 }
 
@@ -36,7 +36,7 @@
 }
 
 .back-button {
-  background: #1A1A1A;
+  background: #1a1a1a;
   border: 1px solid #404040;
   color: #cccccc;
   padding: 10px 20px;
@@ -49,47 +49,53 @@
 }
 
 .back-button:hover {
-  background: #2A2A2A;
+  background: #2a2a2a;
   border-color: #667eea;
   color: #667eea;
 }
 
 .create-repository-card {
-  background: #1A1A1A;
-  border: none;
-  border-radius: 16px;
-  padding: 40px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 20px;
+  padding: 50px;
   margin-bottom: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .create-repository-form {
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 30px;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .form-group label {
   color: #ffffff;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  margin-bottom: 4px;
 }
 
 .form-input,
 .form-textarea,
 .form-select {
-  background: #2A2A2A;
+  background: #2a2a2a;
   border: 1px solid #404040;
-  border-radius: 8px;
-  padding: 12px 16px;
+  border-radius: 12px;
+  padding: 16px 20px;
   font-size: 1rem;
   color: #ffffff;
   transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-input:focus,
@@ -105,35 +111,71 @@
   color: #666666;
 }
 
-.dropdowns-container {
-  display: flex;
-  gap: 20px;
-  align-items: flex-end;
-  justify-content: center;
-}
-
 .form-select {
   cursor: pointer;
+  height: 60px;
 }
 
 .form-select option {
-  background: #2A2A2A;
+  background: #2a2a2a;
   color: #ffffff;
-}
-
-.repository-select {
-  width: 177px;
-  height: 55px;
-}
-
-.type-select {
-  width: 500px;
-  height: 55px;
+  padding: 12px;
 }
 
 .form-textarea {
   resize: vertical;
   min-height: 80px;
+}
+
+/* 로딩 컨테이너 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.loading-container p {
+  color: #cccccc;
+  margin-top: 20px;
+  font-size: 1rem;
+}
+
+/* 버튼 스타일 개선 */
+.submit-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 18px 32px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 20px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.submit-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.submit-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.submit-button:disabled {
+  background: #404040;
+  color: #666666;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .checkbox-group {
@@ -161,7 +203,7 @@
   height: 18px;
   border: 2px solid #404040;
   border-radius: 4px;
-  background: #2A2A2A;
+  background: #2a2a2a;
   position: relative;
   flex-shrink: 0;
   transition: all 0.3s ease;
@@ -173,7 +215,7 @@
 }
 
 .form-checkbox:checked + .checkmark::after {
-  content: '✓';
+  content: "✓";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -195,7 +237,7 @@
 
 /* 에러 메시지 */
 .error-message {
-  background: #1A1A1A;
+  background: #1a1a1a;
   border: 1px solid #ef4444;
   color: #ef4444;
   padding: 20px;
@@ -215,13 +257,47 @@
   font-size: 0.9rem;
 }
 
+/* 성공 메시지 */
+.success-message {
+  background: #1a1a1a;
+  border: 1px solid #10b981;
+  color: #10b981;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.success-message h3 {
+  color: #10b981;
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.success-message p {
+  color: #cccccc;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
 /* 반응형 */
 @media (max-width: 768px) {
   .create-repository-container {
     padding: 20px 15px;
   }
-  
+
   .create-repository-card {
-    padding: 25px;
+    padding: 30px 20px;
   }
-} 
+
+  .create-repository-form {
+    max-width: 100%;
+  }
+
+  .create-repository-header h1 {
+    font-size: 2rem;
+  }
+
+  .create-repository-header p {
+    font-size: 1rem;
+  }
+}
