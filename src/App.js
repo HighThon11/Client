@@ -4,9 +4,13 @@ import './App.css';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Dashboard from './components/Dashboard';
+import Repository from './components/Repository';
+import CreateRepository from './components/CreateRepository';
 import ProjectRegistration from './components/ProjectRegistration';
 import ProjectDetails from './components/ProjectDetails';
 import CommitDetail from './components/CommitDetail';
+import Navbar from './components/Navbar';
+
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,9 +24,16 @@ function App() {
     const userData = localStorage.getItem('user');
     
     if (token && userData) {
-      setGithubToken(token);
-      setUser(JSON.parse(userData));
-      setIsAuthenticated(true);
+      try {
+        setGithubToken(token);
+        setUser(JSON.parse(userData));
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        // 로컬 스토리지 정리
+        localStorage.removeItem('githubToken');
+        localStorage.removeItem('user');
+      }
     }
   }, []);
 
@@ -51,6 +62,8 @@ function App() {
   return (
     <Router>
       <div className="App">
+        {isAuthenticated && <Navbar user={user} onLogout={handleLogout} />}
+
         <div className="container">
           <Routes>
                                 <Route 
@@ -68,6 +81,22 @@ function App() {
               element={
                 isAuthenticated ? 
                 <Dashboard user={user} githubToken={githubToken} /> : 
+                <Navigate to="/login" replace />
+              } 
+            />
+            <Route 
+              path="/repository" 
+              element={
+                isAuthenticated ? 
+                <Repository user={user} githubToken={githubToken} /> : 
+                <Navigate to="/login" replace />
+              } 
+            />
+            <Route 
+              path="/create-repository" 
+              element={
+                isAuthenticated ? 
+                <CreateRepository user={user} githubToken={githubToken} /> : 
                 <Navigate to="/login" replace />
               } 
             />

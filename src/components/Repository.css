@@ -1,0 +1,270 @@
+.repository-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  background: #1A1A1A;
+  min-height: 100vh;
+}
+
+.repository-header {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.repository-header h1 {
+  color: #ffffff;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.repository-header p {
+  color: #cccccc;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.back-button {
+  background: #1A1A1A;
+  border: 1px solid #404040;
+  color: #cccccc;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.back-button:hover {
+  background: #2A2A2A;
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.repository-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.repository-card {
+  background: #1A1A1A;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.repository-card:hover {
+  transform: translateY(-3px);
+  border-color: #667eea;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+}
+
+.repo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.repo-header h3 {
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+}
+
+.repo-visibility {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-left: 10px;
+}
+
+.repo-visibility.public {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.repo-visibility.private {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.repo-description {
+  color: #cccccc;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.repo-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.repo-language {
+  display: flex;
+  align-items: center;
+  color: #cccccc;
+  font-size: 0.9rem;
+}
+
+.language-dot {
+  width: 8px;
+  height: 8px;
+  background: #667eea;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.repo-stats {
+  display: flex;
+  gap: 15px;
+  color: #cccccc;
+  font-size: 0.8rem;
+}
+
+.repo-footer {
+  border-top: 1px solid #404040;
+  padding-top: 15px;
+}
+
+.repo-updated {
+  color: #999999;
+  font-size: 0.8rem;
+}
+
+/* 로딩 스피너 */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner p {
+  color: #cccccc;
+  font-size: 1rem;
+}
+
+/* 에러 메시지 */
+.error-message {
+  background: #1A1A1A;
+  border: 1px solid #404040;
+  color: #ef4444;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.error-message h3 {
+  color: #ef4444;
+  margin-bottom: 10px;
+}
+
+.error-message p {
+  color: #cccccc;
+  margin-bottom: 20px;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-block;
+  border: none;
+  cursor: pointer;
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+/* 빈 상태 */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #cccccc;
+}
+
+.empty-state h3 {
+  color: #ffffff;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+}
+
+.empty-state p {
+  margin-bottom: 20px;
+  font-size: 1rem;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .repository-container {
+    padding: 20px 15px;
+  }
+  
+  .repository-header h1 {
+    font-size: 2rem;
+  }
+  
+  .repository-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .repository-card {
+    padding: 20px;
+  }
+  
+  .repo-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .repo-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+} 
