@@ -105,6 +105,13 @@
   color: #666666;
 }
 
+.dropdowns-container {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  justify-content: center;
+}
+
 .form-select {
   cursor: pointer;
 }
@@ -112,6 +119,16 @@
 .form-select option {
   background: #2A2A2A;
   color: #ffffff;
+}
+
+.repository-select {
+  width: 177px;
+  height: 55px;
+}
+
+.type-select {
+  width: 500px;
+  height: 55px;
 }
 
 .form-textarea {
