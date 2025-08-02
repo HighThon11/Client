@@ -6,7 +6,7 @@ import Signup from './components/Signup';
 import Dashboard from './components/Dashboard';
 import ProjectRegistration from './components/ProjectRegistration';
 import ProjectDetails from './components/ProjectDetails';
-import Navbar from './components/Navbar';
+import CommitDetail from './components/CommitDetail';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -51,7 +51,6 @@ function App() {
   return (
     <Router>
       <div className="App">
-        {isAuthenticated && <Navbar user={user} onLogout={handleLogout} />}
         <div className="container">
           <Routes>
                                 <Route 
@@ -88,6 +87,14 @@ function App() {
                 <Navigate to="/login" replace />
               } 
             />
+                               <Route 
+                     path="/commit/:commitId" 
+                     element={
+                       isAuthenticated ? 
+                       <CommitDetail user={user} githubToken={githubToken} onLogout={handleLogout} /> : 
+                       <Navigate to="/login" replace />
+                     } 
+                   />
             <Route 
               path="/" 
               element={
