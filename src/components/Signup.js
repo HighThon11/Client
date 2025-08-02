@@ -113,8 +113,8 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="githubToken">
-              GitHub Personal Access Token
+            <div className="label-container">
+              <label htmlFor="githubToken">GitHub Personal Access Token</label>
               <button 
                 type="button" 
                 className="help-btn"
@@ -122,7 +122,7 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
               >
                 ?
               </button>
-            </label>
+            </div>
             <input
               type="password"
               id="githubToken"
@@ -133,25 +133,6 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
             />
             {errors.githubToken && <span className="error">{errors.githubToken.message}</span>}
           </div>
-
-          {showPatGuide && (
-            <div className="pat-guide">
-              <h4>GitHub Personal Access Token 생성 방법:</h4>
-              <ol>
-                <li>GitHub.com에 로그인</li>
-                <li>우측 상단 프로필 → Settings</li>
-                <li>좌측 메뉴에서 "Developer settings" 클릭</li>
-                <li>"Personal access tokens" → "Tokens (classic)" 클릭</li>
-                <li>"Generate new token" → "Generate new token (classic)" 클릭</li>
-                <li>Note에 "Code Comment AI" 입력</li>
-                <li>Expiration 선택 (권장: 90 days)</li>
-                <li>Scopes에서 <strong>"repo"</strong> 체크 (전체 repo 권한)</li>
-                <li>"Generate token" 클릭</li>
-                <li>생성된 토큰을 복사하여 위에 입력</li>
-              </ol>
-              <p><strong>⚠️ 주의:</strong> 토큰은 한 번만 표시되므로 안전한 곳에 저장하세요!</p>
-            </div>
-          )}
 
           {error && <div className="error-message">{error}</div>}
           {success && <div className="success-message">{success}</div>}
@@ -174,6 +155,25 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
           </p>
         </div>
       </div>
+      
+      {showPatGuide && (
+        <div className="pat-guide">
+          <h4>GitHub Personal Access Token 생성 방법:</h4>
+          <ol>
+            <li>GitHub.com에 로그인</li>
+            <li>우측 상단 프로필 → Settings</li>
+            <li>좌측 메뉴에서 "Developer settings" 클릭</li>
+            <li>"Personal access tokens" → "Tokens (classic)" 클릭</li>
+            <li>"Generate new token" → "Generate new token (classic)" 클릭</li>
+            <li>Note에 "Code Comment AI" 입력</li>
+            <li>Expiration 선택 (권장: 90 days)</li>
+            <li>Scopes에서 <strong>"repo"</strong> 체크 (전체 repo 권한)</li>
+            <li>"Generate token" 클릭</li>
+            <li>생성된 토큰을 복사하여 위에 입력</li>
+          </ol>
+          <p><strong>⚠️ 주의:</strong> 토큰은 한 번만 표시되므로 안전한 곳에 저장하세요!</p>
+        </div>
+      )}
     </div>
   );
 };
