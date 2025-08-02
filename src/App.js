@@ -10,39 +10,29 @@ import ProjectRegistration from './components/ProjectRegistration';
 import ProjectDetails from './components/ProjectDetails';
 import CommitDetail from './components/CommitDetail';
 import Navbar from './components/Navbar';
+import { getCurrentUser, logoutUser } from './api/auth';
 
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
-  const [githubToken, setGithubToken] = useState('');
+  // const [githubToken, setGithubToken] = useState('');
   const [showSignup, setShowSignup] = useState(false);
 
   useEffect(() => {
-    // 로컬 스토리지에서 인증 상태 확인
-    const token = localStorage.getItem('githubToken');
-    const userData = localStorage.getItem('user');
-    
-    if (token && userData && userData !== 'null' && userData !== 'undefined') {
-      try {
-        setGithubToken(token);
-        setUser(JSON.parse(userData));
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-        // 로컬 스토리지 정리
-        localStorage.removeItem('githubToken');
-        localStorage.removeItem('user');
-      }
+    // 새로운 인증 시스템으로 인증 상태 확인
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+      setUser(currentUser);
+      // setGithubToken(currentUser.githubToken);
+      setIsAuthenticated(true);
     }
   }, []);
 
-  const handleLogin = (userData, token) => {
+  const handleLogin = (userData) => {
     setUser(userData);
-    setGithubToken(token);
+    // setGithubToken(userData.githubToken);
     setIsAuthenticated(true);
-    localStorage.setItem('githubToken', token);
-    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const handleSignup = (signupData) => {
@@ -52,11 +42,10 @@ function App() {
   };
 
   const handleLogout = () => {
+    logoutUser();
     setUser(null);
-    setGithubToken('');
+    // setGithubToken('');
     setIsAuthenticated(false);
-    localStorage.removeItem('githubToken');
-    localStorage.removeItem('user');
   };
 
   return (
@@ -80,7 +69,7 @@ function App() {
               path="/dashboard" 
               element={
                 isAuthenticated ? 
-                <Dashboard user={user} githubToken={githubToken} /> : 
+                <Dashboard user={user} githubToken={''} /> : 
                 <Navigate to="/login" replace />
               } 
             />
@@ -88,7 +77,7 @@ function App() {
               path="/repository" 
               element={
                 isAuthenticated ? 
-                <Repository user={user} githubToken={githubToken} /> : 
+                <Repository user={user} githubToken={''} /> : 
                 <Navigate to="/login" replace />
               } 
             />
@@ -96,7 +85,7 @@ function App() {
               path="/create-repository" 
               element={
                 isAuthenticated ? 
-                <CreateRepository user={user} githubToken={githubToken} /> : 
+                <CreateRepository user={user} githubToken={''} /> : 
                 <Navigate to="/login" replace />
               } 
             />
@@ -104,7 +93,7 @@ function App() {
               path="/register-project" 
               element={
                 isAuthenticated ? 
-                <ProjectRegistration user={user} githubToken={githubToken} /> : 
+                <ProjectRegistration user={user} githubToken={''} /> : 
                 <Navigate to="/login" replace />
               } 
             />
@@ -112,18 +101,18 @@ function App() {
               path="/project/:projectId" 
               element={
                 isAuthenticated ? 
-                <ProjectDetails user={user} githubToken={githubToken} /> : 
+                <ProjectDetails user={user} githubToken={''} /> : 
                 <Navigate to="/login" replace />
               } 
             />
-                               <Route 
-                     path="/commit/:commitId" 
-                     element={
-                       isAuthenticated ? 
-                       <CommitDetail user={user} githubToken={githubToken} onLogout={handleLogout} /> : 
-                       <Navigate to="/login" replace />
-                     } 
-                   />
+                                <Route 
+                      path="/commit/:commitId" 
+                      element={
+                        isAuthenticated ? 
+                        <CommitDetail user={user} githubToken={''} onLogout={handleLogout} /> : 
+                        <Navigate to="/login" replace />
+                      } 
+                    />
             <Route 
               path="/" 
               element={

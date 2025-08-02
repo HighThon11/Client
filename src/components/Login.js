@@ -20,7 +20,7 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
       });
 
       // 로그인 성공
-      onLogin(loginResult.user, loginResult.token);
+      onLogin(loginResult.user);
     } catch (err) {
       console.error('로그인 실패:', err);
       setError(err.message || '로그인 중 오류가 발생했습니다. 다시 시도해주세요.');

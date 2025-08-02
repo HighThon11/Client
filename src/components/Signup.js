@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Octokit } from '@octokit/rest';
 import { signupUser } from '../api/auth';
 import './Signup.css';
 
@@ -9,7 +8,7 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const { register, handleSubmit, formState: { errors }, watch } = useForm();
-  const [showPatGuide, setShowPatGuide] = useState(false);
+  // const [showPatGuide, setShowPatGuide] = useState(false);
 
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -17,29 +16,22 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
     setSuccess('');
 
     try {
-      // GitHub PAT 검증
-      const octokit = new Octokit({
-        auth: data.githubToken
-      });
-
-      // 사용자 정보 가져오기
-      const { data: userData } = await octokit.users.getAuthenticated();
-      
-      // 리포지토리 목록 가져오기 (repo 권한 확인)
-      await octokit.repos.listForAuthenticatedUser({ per_page: 1 });
+      // 프로토타입 버전에서는 간단한 GitHub PAT 형식 검증만 수행
+      // if (!data.githubToken || data.githubToken.length < 10) {
+      //   throw new Error('유효한 GitHub Personal Access Token을 입력해주세요.');
+      // }
 
       // 서버 API에 회원가입 요청
       const signupResult = await signupUser({
         email: data.email,
         password: data.password,
-        githubToken: data.githubToken
+        // githubToken: data.githubToken
       });
 
-      // 회원가입 성공 - 사용자 정보와 함께 저장
+      // 회원가입 성공
       const signupData = {
         email: data.email,
-        githubToken: data.githubToken,
-        githubUser: userData,
+        // githubToken: data.githubToken,
         createdAt: new Date().toISOString(),
         ...signupResult // 서버에서 반환된 추가 데이터
       };
@@ -53,17 +45,7 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
       }, 2000);
     } catch (err) {
       console.error('회원가입 실패:', err);
-      if (err.message.includes('GitHub PAT') || err.status === 401 || err.status === 403) {
-        if (err.status === 401) {
-          setError('GitHub Personal Access Token이 유효하지 않습니다. 토큰을 확인해주세요.');
-        } else if (err.status === 403) {
-          setError('GitHub Personal Access Token에 repo 권한이 필요합니다.');
-        } else {
-          setError('GitHub 연결 중 오류가 발생했습니다. 다시 시도해주세요.');
-        }
-      } else {
-        setError(err.message || '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
-      }
+      setError(err.message || '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
       setIsLoading(false);
     }
@@ -140,6 +122,7 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
             {errors.confirmPassword && <span className="error">{errors.confirmPassword.message}</span>}
           </div>
 
+          {/* GitHub 토큰 입력 필드 주석 처리
           <div className="form-group">
             <div className="label-container">
               <label htmlFor="githubToken">GitHub Personal Access Token</label>
@@ -161,6 +144,7 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
             />
             {errors.githubToken && <span className="error">{errors.githubToken.message}</span>}
           </div>
+          */}
 
           {error && <div className="error-message">{error}</div>}
           {success && <div className="success-message">{success}</div>}
@@ -184,6 +168,7 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
         </div>
       </div>
       
+      {/* GitHub PAT 가이드 주석 처리
       {showPatGuide && (
         <div className="pat-guide">
           <h4>GitHub Personal Access Token 생성 방법:</h4>
@@ -202,6 +187,7 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
           <p><strong>⚠️ 주의:</strong> 토큰은 한 번만 표시되므로 안전한 곳에 저장하세요!</p>
         </div>
       )}
+      */}
     </div>
   );
 };

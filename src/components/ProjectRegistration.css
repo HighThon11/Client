@@ -167,7 +167,6 @@
 .repository-list {
   max-height: 400px;
   overflow-y: auto;
-  border: 2px solid #e1e5e9;
   border-radius: 8px;
 }
 
