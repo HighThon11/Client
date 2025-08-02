@@ -14,7 +14,7 @@ const Navbar = ({ user, onLogout }) => {
               <path className="logo-path" d="M36.13,152.57v-2.87h-3.03v-9.83h3.03v-2.87h36.89v-7.91h-36.89v-2.87h-3.03v-9.83h3.03v-2.87h52.12v2.87h3.03v50.96h-3.03v2.87h-12.21v-2.87h-3.03v-14.78h-36.89Z"/>
               <path className="logo-path" d="M162.58,116.22h3.03v9.83h-3.03v2.87h-37.81v25.74h37.81v2.87h3.03v9.83h-3.03v2.87h-52.12v-2.87h-3.03v-51.13h3.03v-2.87h52.12v2.87Z"/>
             </svg>
-            <span className="brand-text">잊은 코드</span>
+            
           </Link>
         </div>
         <div className="navbar-right">

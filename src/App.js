@@ -111,7 +111,7 @@ function App() {
                       path="/login" 
                       element={
                         isAuthenticated ? 
-                        <Navigate to="/dashboard" replace /> : 
+                        <Navigate to="/create-repository" replace /> : 
                         showSignup ? 
                         <Signup onSignup={handleSignup} onSwitchToLogin={() => setShowSignup(false)} /> :
                         // // JavaScript 로직 추가

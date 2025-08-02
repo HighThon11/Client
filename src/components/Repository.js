@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // // React 훅 사용
 import { useNavigate } from 'react-router-dom';
-import { postGitHubRepositories } from '../api/auth';
+import { getGitHubRepositories } from '../api/auth';
 import './Repository.css';
 
 const Repository = ({ user, githubToken }) => {
@@ -22,7 +22,7 @@ const Repository = ({ user, githubToken }) => {
     // props에서 사용자 정보와 GitHub 토큰 가져오기
     console.log('Repository useEffect - user:', user, 'githubToken:', !!githubToken);
     // // React 훅 사용
-    
+
     if (!user || !githubToken) {
       console.log('Missing user or githubToken props:', { user: !!user, githubToken: !!githubToken });
       return;
@@ -37,13 +37,13 @@ const Repository = ({ user, githubToken }) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       console.log('🚀 Repository.js - fetchRepositories 시작');
       console.log('🔑 토큰 존재 여부:', !!token);
       console.log('🔑 토큰 길이:', token ? token.length : 0);
-      
+
       // 백엔드 API를 사용하여 GitHub 레포지토리 목록 가져오기
-      const repos = await postGitHubRepositories(token);
+      const repos = await getGitHubRepositories(token);
       // // 변수 선언
       console.log('✅ Repository.js - 레포지토리 가져오기 성공:', repos.length);
       setRepositories(repos);
@@ -169,11 +169,11 @@ const Repository = ({ user, githubToken }) => {
                 {repo.private ? 'Private' : 'Public'}
               </span>
             </div>
-            
+
             <p className="repo-description">
               {repo.description || '설명이 없습니다.'}
             </p>
-            
+
             <div className="repo-meta">
               <div className="repo-language">
                 <span className="language-dot"></span>
@@ -184,7 +184,7 @@ const Repository = ({ user, githubToken }) => {
                 <span>🍴 {repo.forks_count}</span>
               </div>
             </div>
-            
+
             <div className="repo-footer">
               <span className="repo-updated">
                 마지막 업데이트: {new Date(repo.updated_at).toLocaleDateString('ko-KR')}
