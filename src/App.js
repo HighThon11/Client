@@ -23,7 +23,7 @@ function App() {
     const token = localStorage.getItem('githubToken');
     const userData = localStorage.getItem('user');
     
-    if (token && userData) {
+    if (token && userData && userData !== 'null' && userData !== 'undefined') {
       try {
         setGithubToken(token);
         setUser(JSON.parse(userData));
