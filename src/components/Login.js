@@ -33,10 +33,8 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1>로그인</h1>
-        <p className="login-description">
-          코드 변경사항을 자동으로 주석화하는 서비스에 오신 것을 환영합니다.
-        </p>
+        <h2>잊은 코드</h2>
+        <p className="login-title">로그인</p>
         
         <form onSubmit={handleSubmit(onSubmit)} className="login-form">
           <div className="form-group">
@@ -51,7 +49,7 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
                   message: '유효한 이메일 주소를 입력해주세요'
                 }
               })}
-              placeholder="your.email@example.com"
+              placeholder="E-mail"
             />
             {errors.email && <span className="error">{errors.email.message}</span>}
           </div>
@@ -68,7 +66,7 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
                   message: '비밀번호는 최소 6자 이상이어야 합니다'
                 }
               })}
-              placeholder="비밀번호를 입력하세요"
+              placeholder="password"
             />
             {errors.password && <span className="error">{errors.password.message}</span>}
           </div>

@@ -64,6 +64,7 @@
 .form-group select {
   width: 100%;
   padding: 12px 16px;
+  border: 2px solid #595959;
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
@@ -343,6 +344,7 @@
 @media (max-width: 480px) {
   .registration-header h1 {
     font-size: 1.3rem;
+    color: #ffffff;
   }
   
   .form-section h2 {
