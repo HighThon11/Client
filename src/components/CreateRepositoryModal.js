@@ -25,7 +25,37 @@ const CreateRepositoryModal = ({ user, githubToken, onClose }) => {
         "✅ CreateRepositoryModal - GitHub 레포지토리 가져오기 성공:",
         repos.length
       );
-      setRepositories(repos);
+      console.log(
+        "🔍 Modal fullName 확인:",
+        repos.map((repo) => ({
+          name: repo.name,
+          fullName: repo.fullName,
+          full_name: repo.full_name,
+          owner: repo.owner?.login,
+          htmlUrl: repo.htmlUrl,
+          html_url: repo.html_url,
+        }))
+      );
+
+      // API 응답 필드명에 맞게 수정
+      const correctedRepos = repos.map((repo) => {
+        // fullName 필드를 full_name으로 복사 (기존 코드 호환성)
+        const repoWithFullName = {
+          ...repo,
+          full_name: repo.fullName || repo.full_name,
+          html_url: repo.htmlUrl || repo.html_url,
+        };
+
+        console.log("🔧 Modal 레포지토리 필드 확인:", {
+          name: repoWithFullName.name,
+          fullName: repoWithFullName.fullName,
+          full_name: repoWithFullName.full_name,
+        });
+
+        return repoWithFullName;
+      });
+
+      setRepositories(correctedRepos);
     } catch (err) {
       console.error(
         "❌ CreateRepositoryModal - GitHub 레포지토리 가져오기 실패:",
@@ -99,11 +129,20 @@ const CreateRepositoryModal = ({ user, githubToken, onClose }) => {
       const repositoryData = {
         repositoryId: selectedRepo.id,
         repositoryName: selectedRepo.name,
-        repositoryFullName: `${user?.login || "unknown"}/${selectedRepo.name}`,
+        repositoryFullName:
+          selectedRepo.full_name ||
+          `${selectedRepo.owner?.login || user?.login || "unknown"}/${
+            selectedRepo.name
+          }`,
         repositoryDescription: selectedRepo.description || "",
         repositoryUrl:
           selectedRepo.html_url ||
-          `https://github.com/${user?.login || "unknown"}/${selectedRepo.name}`,
+          `https://github.com/${
+            selectedRepo.full_name ||
+            `${selectedRepo.owner?.login || user?.login || "unknown"}/${
+              selectedRepo.name
+            }`
+          }`,
         defaultBranch: selectedRepo.default_branch || "main",
         isPrivate: selectedRepo.private || false,
         repositoryCreatedAt:
@@ -197,7 +236,12 @@ const CreateRepositoryModal = ({ user, githubToken, onClose }) => {
                       onClick={() => handleRepoSelect(repo)}
                     >
                       <div className="repo-header">
-                        <h4>{repo.name}</h4>
+                        <h4>
+                          {repo.full_name ||
+                            `${repo.owner?.login || user?.login || "unknown"}/${
+                              repo.name
+                            }`}
+                        </h4>
                         <span
                           className={`repo-visibility ${
                             repo.private ? "private" : "public"
@@ -231,7 +275,10 @@ const CreateRepositoryModal = ({ user, githubToken, onClose }) => {
                   <div className="selected-info">
                     <span className="selected-label">선택됨:</span>
                     <span className="selected-repo-name">
-                      {selectedRepo.name}
+                      {selectedRepo.full_name ||
+                        `${
+                          selectedRepo.owner?.login || user?.login || "unknown"
+                        }/${selectedRepo.name}`}
                     </span>
                     <span
                       className={`repo-visibility ${

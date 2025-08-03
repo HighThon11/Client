@@ -104,6 +104,7 @@ function App() {
   const [githubToken, setGithubToken] = useState("");
   // // 변수 선언
   const [showSignup, setShowSignup] = useState(false);
+  const [showNavbar, setShowNavbar] = useState(true);
   // // 변수 선언
 
   useEffect(() => {
@@ -276,7 +277,9 @@ function App() {
   return (
     <Router>
       <div className="App">
-        {isAuthenticated && <Navbar user={user} onLogout={handleLogout} />}
+        {isAuthenticated && showNavbar && (
+          <Navbar user={user} onLogout={handleLogout} />
+        )}
         <div className="container">
           <Routes>
             <Route
@@ -301,7 +304,12 @@ function App() {
               path="/repository"
               element={
                 isAuthenticated ? (
-                  <Repository user={user} githubToken={githubToken} />
+                  <Repository
+                    user={user}
+                    githubToken={githubToken}
+                    onLogout={handleLogout}
+                    onNavigationChange={setShowNavbar}
+                  />
                 ) : (
                   <Navigate to="/login" replace />
                 )
@@ -336,6 +344,10 @@ function App() {
                   <Navigate to="/login" replace />
                 )
               }
+            />
+            <Route
+              path="/dashboard"
+              element={<Navigate to="/repository" replace />}
             />
             <Route
               path="/"

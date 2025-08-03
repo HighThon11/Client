@@ -1,28 +1,48 @@
 import React from "react";
 import "./CommitDetail.css";
 
-const CommitDetail = ({ commit, repository, onBack }) => {
+const CommitDetail = ({ commit, repository, onBack, user, onLogout }) => {
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
+    try {
+      return new Date(dateString).toLocaleDateString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+    } catch (error) {
+      return "날짜 없음";
+    }
+  };
+
+  const getTimeAgo = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInMs = now - date;
+      const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+      if (diffInDays === 0) {
+        return "today";
+      } else if (diffInDays === 1) {
+        return "1d ago";
+      } else {
+        return `${diffInDays}d ago`;
+      }
+    } catch (error) {
+      return "unknown";
+    }
   };
 
   const formatFileChanges = (files) => {
     if (!files || files.length === 0) return [];
 
     return files.map((file, index) => ({
-      filename: file.filename,
-      status: file.status,
-      additions: file.additions || 0,
-      deletions: file.deletions || 0,
-      changes: file.changes || 0,
-      patch: file.patch || "",
+      filename: file.filename || file.name || `file-${index}`,
+      status: file.status || "modified",
+      additions: file.additions || file.lines_added || 0,
+      deletions: file.deletions || file.lines_deleted || 0,
+      changes: file.changes || file.lines_changed || 0,
+      patch: file.patch || file.diff || "",
     }));
   };
 
@@ -56,130 +76,212 @@ const CommitDetail = ({ commit, repository, onBack }) => {
     }
   };
 
-  const fileChanges = formatFileChanges(commit.files);
+  const fileChanges = formatFileChanges(commit?.files);
+
+  // commit이 없을 때 로딩 상태 표시
+  if (!commit) {
+    return (
+      <div className="commit-detail-container">
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <p>커밋 데이터를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="commit-detail-container">
-      <div className="commit-detail-header">
-        <button onClick={onBack} className="back-button">
-          ← 커밋 목록으로 돌아가기
-        </button>
-        <h1>커밋 상세 정보</h1>
-        <p>
-          {repository.repositoryName} - {commit.sha.substring(0, 7)}
-        </p>
+      {/* 상단 헤더 */}
+      <div className="top-header">
+        <div className="header-left">
+          <div className="logo">
+            <span className="logo-text">ㅇㅈ ㅋㄷ</span>
+          </div>
+        </div>
+        <div className="header-right">
+          <span className="project-name">프로젝트</span>
+          <span className="username">
+            {user?.login || user?.name || "사용자"}
+          </span>
+          <button className="logout-btn" onClick={onLogout}>
+            로그아웃
+          </button>
+        </div>
       </div>
 
-      <div className="commit-detail-content">
-        {/* 커밋 기본 정보 */}
-        <div className="commit-info-section">
-          <div className="commit-message-section">
-            <h2>커밋 메시지</h2>
-            <div className="commit-message">{commit.commit.message}</div>
-          </div>
-
-          <div className="commit-author-section">
-            <h3>작성자 정보</h3>
-            <div className="author-info">
-              <div className="author-avatar">
-                <img
-                  src={
-                    commit.author?.avatar_url ||
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      commit.commit.author.name
-                    )}&background=random`
-                  }
-                  alt={commit.author?.login || commit.commit.author.name}
-                  className="avatar"
-                />
-              </div>
-              <div className="author-details">
-                <div className="author-name">
-                  {commit.author?.login || commit.commit.author.name}
-                </div>
-                <div className="author-email">{commit.commit.author.email}</div>
-                <div className="commit-date">
-                  {formatDate(commit.commit.author.date)}
-                </div>
-              </div>
+      {/* 메인 콘텐츠 */}
+      <div className="main-content">
+        {/* 왼쪽 사이드바 */}
+        <div className="sidebar">
+          <div className="project-info">
+            <h3>프로젝트명 01</h3>
+            <p>프로젝트 디스크립션 - 설명</p>
+            <div className="language-info">
+              <span className="language-icon">●</span>
+              <span>javascript</span>
             </div>
           </div>
 
-          <div className="commit-stats-section">
-            <h3>변경 통계</h3>
-            <div className="commit-stats">
-              <div className="stat-item">
-                <span className="stat-label">SHA:</span>
-                <span className="stat-value">{commit.sha}</span>
+          <div className="commit-history">
+            <h3>커밋 히스토리</h3>
+            <div className="commit-list">
+              <div className="commit-item active">
+                <div className="commit-info">
+                  <div className="commit-message">
+                    Commit {commit?.sha?.substring(0, 7) || "N/A"}
+                  </div>
+                  <div className="commit-meta">
+                    <span className="commit-time">
+                      {getTimeAgo(
+                        commit?.commit?.author?.date || commit?.author?.date
+                      )}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="stat-item">
-                <span className="stat-label">파일 변경:</span>
-                <span className="stat-value">{fileChanges.length}개 파일</span>
+              <div className="commit-item">
+                <div className="commit-info">
+                  <div className="commit-message">Commit c385318</div>
+                  <div className="commit-meta">
+                    <span className="commit-time">42d ago</span>
+                  </div>
+                </div>
               </div>
-              <div className="stat-item">
-                <span className="stat-label">추가된 줄:</span>
-                <span className="stat-value additions">
-                  +{fileChanges.reduce((sum, file) => sum + file.additions, 0)}
-                </span>
+              <div className="commit-item">
+                <div className="commit-info">
+                  <div className="commit-message">Commit c385318</div>
+                  <div className="commit-meta">
+                    <span className="commit-time">42d ago</span>
+                  </div>
+                </div>
               </div>
-              <div className="stat-item">
-                <span className="stat-label">삭제된 줄:</span>
-                <span className="stat-value deletions">
-                  -{fileChanges.reduce((sum, file) => sum + file.deletions, 0)}
-                </span>
+              <div className="commit-item">
+                <div className="commit-info">
+                  <div className="commit-message">Commit c385318</div>
+                  <div className="commit-meta">
+                    <span className="commit-time">42d ago</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 파일 변경 사항 */}
-        {fileChanges.length > 0 && (
-          <div className="files-section">
-            <h3>변경된 파일</h3>
-            <div className="files-list">
-              {fileChanges.map((file, index) => (
-                <div key={index} className="file-change">
-                  <div className="file-header">
-                    <div className="file-info">
-                      <span
-                        className="file-status"
-                        style={{ color: getStatusColor(file.status) }}
-                      >
-                        {getStatusText(file.status)}
-                      </span>
-                      <span className="file-name">{file.filename}</span>
-                    </div>
-                    <div className="file-stats">
-                      <span className="additions">+{file.additions}</span>
-                      <span className="deletions">-{file.deletions}</span>
-                    </div>
-                  </div>
-                  {file.patch && (
-                    <div className="file-patch">
-                      <pre>{file.patch}</pre>
-                    </div>
-                  )}
-                </div>
-              ))}
+        {/* 오른쪽 메인 영역 */}
+        <div className="main-area">
+          <div className="commit-detail">
+            <div className="commit-header">
+              <h1>Commit {commit?.sha?.substring(0, 7) || "N/A"}</h1>
+              <div className="commit-link">
+                <span>🔗</span>
+                <span>
+                  GitHub - {user?.login || "username"}/Commit{" "}
+                  {commit?.sha?.substring(0, 7) || "N/A"}
+                </span>
+              </div>
             </div>
-          </div>
-        )}
 
-        {/* 커밋 부모 정보 */}
-        {commit.parents && commit.parents.length > 0 && (
-          <div className="parents-section">
-            <h3>부모 커밋</h3>
-            <div className="parents-list">
-              {commit.parents.map((parent, index) => (
-                <div key={index} className="parent-commit">
-                  <span className="parent-sha">
-                    {parent.sha.substring(0, 7)}
-                  </span>
-                </div>
-              ))}
+            <div className="commit-meta">
+              <div className="meta-card">
+                <span>📅</span>
+                <span>마지막 커밋</span>
+                <span>
+                  {formatDate(
+                    commit?.commit?.author?.date || commit?.author?.date
+                  )}
+                </span>
+              </div>
+              <div className="meta-card">
+                <span>📁</span>
+                <span>추적 파일 수</span>
+                <span>{fileChanges.length}</span>
+              </div>
             </div>
+
+            <div className="commit-message">
+              <h2>
+                {commit.commit?.message || commit.message || "커밋 메시지 없음"}
+              </h2>
+              <button className="deploy-btn">🚀 deploy (#15)</button>
+            </div>
+
+            {/* 파일 변경 사항 */}
+            {fileChanges.length > 0 && (
+              <div className="file-changes">
+                <div className="changes-header">
+                  <div className="search-bar">
+                    <input type="text" placeholder="Q Filter files..." />
+                  </div>
+                  <div className="changes-summary">
+                    <span>{fileChanges.length} files changed</span>
+                    <span>
+                      +
+                      {fileChanges.reduce(
+                        (sum, file) => sum + file.additions,
+                        0
+                      )}{" "}
+                      -
+                      {fileChanges.reduce(
+                        (sum, file) => sum + file.deletions,
+                        0
+                      )}{" "}
+                      lines changed
+                    </span>
+                  </div>
+                  <div className="search-bar">
+                    <input type="text" placeholder="Q Search within code" />
+                  </div>
+                </div>
+
+                <div className="changes-content">
+                  {/* 파일 트리 */}
+                  <div className="file-tree">
+                    {fileChanges.map((file, index) => (
+                      <div key={index} className="tree-item">
+                        <span>📄</span>
+                        <span>{file.filename}</span>
+                        <span className="file-stats">
+                          +{file.additions} -{file.deletions}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* 코드 변경사항 */}
+                  <div className="code-diff">
+                    {fileChanges.map((file, fileIndex) => (
+                      <div key={fileIndex} className="file-diff">
+                        <div className="file-path">{file.filename}</div>
+                        <div className="diff-summary">@@ -5,5 +5,8 @@</div>
+                        <div className="code-changes">
+                          {file.patch ? (
+                            <pre className="patch-content">{file.patch}</pre>
+                          ) : (
+                            <div className="no-patch">
+                              <div className="code-line unchanged">
+                                <span className="line-number">1</span>
+                                <span className="code-content">
+                                  // 파일 변경사항이 표시됩니다
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="commit-actions">
+                  <button className="apply-comments-btn">
+                    주석 적용해서 커밋 후 푸시하기
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

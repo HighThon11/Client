@@ -24,7 +24,6 @@
   margin: 0;
 }
 
-
 .repository-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -153,6 +152,21 @@
 .repo-url a:hover {
   color: #5a6fd8;
   text-decoration: underline;
+}
+
+.delete-repo-btn {
+  background: none;
+  border: none;
+  color: #e53e3e;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.delete-repo-btn:hover {
+  background-color: rgba(229, 62, 62, 0.1);
 }
 
 .repo-language {

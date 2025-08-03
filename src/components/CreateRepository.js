@@ -48,7 +48,37 @@ const CreateRepository = ({ user, githubToken }) => {
         "✅ CreateRepository.js - 레포지토리 가져오기 성공:",
         repos.length
       );
-      setRepositories(repos);
+      console.log(
+        "🔍 fullName 확인:",
+        repos.map((repo) => ({
+          name: repo.name,
+          fullName: repo.fullName,
+          full_name: repo.full_name,
+          owner: repo.owner?.login,
+          htmlUrl: repo.htmlUrl,
+          html_url: repo.html_url,
+        }))
+      );
+
+      // API 응답 필드명에 맞게 수정
+      const correctedRepos = repos.map((repo) => {
+        // fullName 필드를 full_name으로 복사 (기존 코드 호환성)
+        const repoWithFullName = {
+          ...repo,
+          full_name: repo.fullName || repo.full_name,
+          html_url: repo.htmlUrl || repo.html_url,
+        };
+
+        console.log("🔧 레포지토리 필드 확인:", {
+          name: repoWithFullName.name,
+          fullName: repoWithFullName.fullName,
+          full_name: repoWithFullName.full_name,
+        });
+
+        return repoWithFullName;
+      });
+
+      setRepositories(correctedRepos);
     } catch (err) {
       console.error("❌ CreateRepository.js - 레포지토리 가져오기 실패:", err);
       setError(
@@ -128,12 +158,21 @@ const CreateRepository = ({ user, githubToken }) => {
       const repositoryData = {
         repositoryId: selectedRepo.id,
         repositoryName: selectedRepo.name,
-        repositoryFullName: `${user?.login || "unknown"}/${selectedRepo.name}`,
+        repositoryFullName:
+          selectedRepo.full_name ||
+          `${selectedRepo.owner?.login || user?.login || "unknown"}/${
+            selectedRepo.name
+          }`,
         repositoryDescription: selectedRepo.description || "",
         repositoryUrl:
           selectedRepo.html_url ||
-          `https://github.com/${user?.login || "unknown"}/${selectedRepo.name}`,
-        defaultBranch: "main", // GitHub API에서 기본 브랜치 정보를 가져올 수 있지만, 여기서는 기본값 사용
+          `https://github.com/${
+            selectedRepo.full_name ||
+            `${selectedRepo.owner?.login || user?.login || "unknown"}/${
+              selectedRepo.name
+            }`
+          }`,
+        defaultBranch: selectedRepo.default_branch || "main",
         isPrivate: selectedRepo.private || false,
         repositoryCreatedAt:
           selectedRepo.created_at || new Date().toISOString(),
@@ -231,7 +270,11 @@ const CreateRepository = ({ user, githubToken }) => {
                   <option value="">저장소를 선택하세요</option>
                   {repositories.map((repo) => (
                     <option key={repo.id} value={repo.id}>
-                      {repo.name} {repo.private ? "(Private)" : "(Public)"}
+                      {repo.full_name ||
+                        `${repo.owner?.login || user?.login || "unknown"}/${
+                          repo.name
+                        }`}{" "}
+                      {repo.private ? "(Private)" : "(Public)"}
                     </option>
                   ))}
                 </select>

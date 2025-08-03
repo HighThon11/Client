@@ -1,17 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getSavedRepositories, saveRepository } from "../api/auth";
+import {
+  getSavedRepositories,
+  saveRepository,
+  getRepositoryCommits,
+  getCommitDetail,
+  deleteSavedRepository,
+} from "../api/auth";
 import CreateRepositoryModal from "./CreateRepositoryModal";
 import CommitList from "./CommitList";
+import CommitDetail from "./CommitDetail";
 import "./Repository.css";
 
-const Repository = ({ user, githubToken }) => {
+const Repository = ({ user, githubToken, onLogout, onNavigationChange }) => {
   const [repositories, setRepositories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedRepo, setSelectedRepo] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCommitList, setShowCommitList] = useState(false);
+  const [showCommitDetail, setShowCommitDetail] = useState(false);
+  const [selectedCommit, setSelectedCommit] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,7 +42,17 @@ const Repository = ({ user, githubToken }) => {
 
     console.log("Repository component mounted with user:", user.login);
     fetchRepositories();
-  }, [user, githubToken, navigate]);
+
+    // 네비게이션 표시
+    if (onNavigationChange) {
+      onNavigationChange(true);
+    }
+
+    // 히스토리 정리 - /dashboard를 /repository로 교체
+    if (window.location.pathname === "/dashboard") {
+      navigate("/repository", { replace: true });
+    }
+  }, [user, githubToken, navigate, onNavigationChange]);
 
   const fetchRepositories = async () => {
     try {
@@ -47,6 +66,15 @@ const Repository = ({ user, githubToken }) => {
       console.log(
         "✅ Repository.js - 저장된 레포지토리 가져오기 성공:",
         savedRepos.length
+      );
+      console.log(
+        "🔍 저장된 레포지토리 데이터:",
+        savedRepos.map((repo) => ({
+          id: repo.id,
+          repositoryName: repo.repositoryName,
+          repositoryFullName: repo.repositoryFullName,
+          repositoryUrl: repo.repositoryUrl,
+        }))
       );
       setRepositories(savedRepos);
     } catch (err) {
@@ -62,6 +90,7 @@ const Repository = ({ user, githubToken }) => {
           repositoryName: "my-react-app",
           repositoryDescription: "React로 만든 웹 애플리케이션",
           isPrivate: false,
+          repositoryFullName: "user/my-react-app",
           repositoryUrl: "https://github.com/user/my-react-app",
           repositoryUpdatedAt: new Date().toISOString(),
         },
@@ -70,6 +99,7 @@ const Repository = ({ user, githubToken }) => {
           repositoryName: "api-service",
           repositoryDescription: "Node.js API 서버",
           isPrivate: true,
+          repositoryFullName: "user/api-service",
           repositoryUrl: "https://github.com/user/api-service",
           repositoryUpdatedAt: new Date(
             Date.now() - 24 * 60 * 60 * 1000
@@ -80,6 +110,7 @@ const Repository = ({ user, githubToken }) => {
           repositoryName: "portfolio-website",
           repositoryDescription: "개인 포트폴리오 웹사이트",
           isPrivate: false,
+          repositoryFullName: "user/portfolio-website",
           repositoryUrl: "https://github.com/user/portfolio-website",
           repositoryUpdatedAt: new Date(
             Date.now() - 2 * 24 * 60 * 60 * 1000
@@ -95,15 +126,61 @@ const Repository = ({ user, githubToken }) => {
   const handleRepoSelect = async (repo) => {
     try {
       setSelectedRepo(repo);
-      setShowCommitList(true);
+      setLoading(true);
+
+      console.log("🔍 선택된 레포지토리:", {
+        repositoryName: repo.repositoryName,
+        repositoryFullName: repo.repositoryFullName,
+        extractedOwner: repo.repositoryFullName?.split("/")[0],
+        extractedRepo: repo.repositoryName,
+      });
+
+      // 네비게이션 숨기기
+      if (onNavigationChange) {
+        onNavigationChange(false);
+      }
+
+      // 히스토리에 현재 상태 추가 (뒤로가기 시 /repository로 돌아가도록)
+      navigate("/repository", { replace: false });
+
+      // 레포지토리의 첫 번째 커밋을 가져오기
+      const [owner, repoName] = repo.repositoryFullName?.split("/") || [];
+
+      console.log("🚀 API 호출 파라미터:", {
+        owner,
+        repoName,
+        fullName: repo.repositoryFullName,
+      });
+
+      const commits = await getRepositoryCommits(owner, repoName);
+
+      if (commits && commits.length > 0) {
+        // 첫 번째 커밋의 상세 정보 가져오기
+        const firstCommit = commits[0];
+        const commitDetail = await getCommitDetail(
+          repo.repositoryFullName.split("/")[0],
+          repo.repositoryName,
+          firstCommit.sha
+        );
+
+        setSelectedCommit(commitDetail);
+        setShowCommitDetail(true);
+      } else {
+        // 커밋이 없는 경우 커밋 목록 페이지로 이동
+        setShowCommitList(true);
+      }
     } catch (error) {
       console.error("❌ 레포지토리 선택 실패:", error);
-      setError(error.message || "레포지토리 선택 중 오류가 발생했습니다.");
+      setError(`레포지토리 정보를 가져오는데 실패했습니다: ${error.message}`);
+      // API 호출 실패 시 커밋 목록 페이지로 이동
+      setShowCommitList(true);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleBackToDashboard = () => {
-    navigate("/dashboard");
+  const handleBackToRepository = () => {
+    navigate("/repository");
   };
 
   const handleCreateRepository = () => {
@@ -116,9 +193,45 @@ const Repository = ({ user, githubToken }) => {
     fetchRepositories();
   };
 
+  const handleDeleteRepository = async (repositoryId) => {
+    if (window.confirm("정말로 이 레포지토리를 삭제하시겠습니까?")) {
+      try {
+        await deleteSavedRepository(repositoryId);
+        console.log("✅ 레포지토리 삭제 성공");
+        // 레포지토리 목록 새로고침
+        fetchRepositories();
+      } catch (error) {
+        console.error("❌ 레포지토리 삭제 실패:", error);
+        setError("레포지토리 삭제에 실패했습니다.");
+      }
+    }
+  };
+
   const handleBackFromCommits = () => {
     setShowCommitList(false);
     setSelectedRepo(null);
+
+    // 네비게이션 다시 표시
+    if (onNavigationChange) {
+      onNavigationChange(true);
+    }
+
+    // 히스토리 정리 - 현재 URL을 /repository로 교체
+    navigate("/repository", { replace: true });
+  };
+
+  const handleBackFromCommitDetail = () => {
+    setShowCommitDetail(false);
+    setSelectedCommit(null);
+    setSelectedRepo(null);
+
+    // 네비게이션 다시 표시
+    if (onNavigationChange) {
+      onNavigationChange(true);
+    }
+
+    // 히스토리 정리 - 현재 URL을 /repository로 교체
+    navigate("/repository", { replace: true });
   };
 
   if (loading) {
@@ -149,7 +262,7 @@ const Repository = ({ user, githubToken }) => {
             다시 시도
           </button>
           <button
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/repository")}
             className="primary-button"
             style={{ marginLeft: "10px" }}
           >
@@ -160,10 +273,32 @@ const Repository = ({ user, githubToken }) => {
     );
   }
 
+  // 커밋 상세 페이지가 표시되어야 하는 경우
+  if (showCommitDetail && selectedCommit && selectedRepo) {
+    return (
+      <div style={{ height: "100vh" }}>
+        <CommitDetail
+          commit={selectedCommit}
+          repository={selectedRepo}
+          onBack={handleBackFromCommitDetail}
+          user={user}
+          onLogout={onLogout}
+        />
+      </div>
+    );
+  }
+
   // 커밋 목록이 표시되어야 하는 경우
   if (showCommitList && selectedRepo) {
     return (
-      <CommitList repository={selectedRepo} onBack={handleBackFromCommits} />
+      <div style={{ height: "100vh" }}>
+        <CommitList
+          repository={selectedRepo}
+          onBack={handleBackFromCommits}
+          user={user}
+          onLogout={onLogout}
+        />
+      </div>
     );
   }
 
@@ -185,7 +320,7 @@ const Repository = ({ user, githubToken }) => {
             onClick={() => handleRepoSelect(repo)}
           >
             <div className="repo-header">
-              <h3>{repo.repositoryName}</h3>
+              <h3>{repo.repositoryFullName || repo.repositoryName}</h3>
               <span
                 className={`repo-visibility ${
                   repo.isPrivate ? "private" : "public"
@@ -210,6 +345,16 @@ const Repository = ({ user, githubToken }) => {
                   🔗 GitHub에서 보기
                 </a>
               </div>
+              <button
+                className="delete-repo-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteRepository(repo.id);
+                }}
+                title="레포지토리 삭제"
+              >
+                🗑️
+              </button>
             </div>
 
             <div className="repo-footer">

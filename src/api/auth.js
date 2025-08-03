@@ -426,6 +426,49 @@ export const getRepositoryCommits = async (owner, repo) => {
 };
 
 /**
+ * 저장된 레포지토리 삭제 API 호출
+ * @param {number} repositoryId - 삭제할 레포지토리 ID
+ * @returns {Promise<Object>} 삭제 결과
+ */
+export const deleteSavedRepository = async (repositoryId) => {
+  const serverToken = localStorage.getItem("serverToken");
+  if (!serverToken) {
+    console.error("❌ JWT 토큰이 없습니다.");
+    throw new Error("인증 토큰이 없습니다. 다시 로그인해주세요.");
+  }
+
+  try {
+    console.log(`🚀 저장된 레포지토리 삭제 API 호출: ${repositoryId}`);
+    const response = await fetch(
+      `${API_BASE_URL}/saved-repositories/${repositoryId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${serverToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("❌ 저장된 레포지토리 삭제 실패:", errorData);
+      throw new Error(
+        errorData.message || "저장된 레포지토리 삭제에 실패했습니다."
+      );
+    }
+
+    const result = await response.json();
+    console.log("✅ 저장된 레포지토리 삭제 성공:", result);
+    return result;
+  } catch (error) {
+    console.error("❌ 저장된 레포지토리 삭제 중 오류:", error);
+    throw error;
+  }
+};
+
+/**
  * 커밋 상세 정보 조회 API 호출
  * @param {string} owner - 레포지토리 소유자
  * @param {string} repo - 레포지토리 이름
