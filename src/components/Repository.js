@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSavedRepositories, saveRepository } from "../api/auth";
 import CreateRepositoryModal from "./CreateRepositoryModal";
+import CommitList from "./CommitList";
 import "./Repository.css";
 
 const Repository = ({ user, githubToken }) => {
@@ -10,6 +11,7 @@ const Repository = ({ user, githubToken }) => {
   const [error, setError] = useState(null);
   const [selectedRepo, setSelectedRepo] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showCommitList, setShowCommitList] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -93,12 +95,7 @@ const Repository = ({ user, githubToken }) => {
   const handleRepoSelect = async (repo) => {
     try {
       setSelectedRepo(repo);
-
-      // 선택된 레포지토리를 로컬 스토리지에 저장
-      localStorage.setItem("selectedRepository", JSON.stringify(repo));
-
-      // 프로젝트 등록 페이지로 이동
-      navigate("/register-project");
+      setShowCommitList(true);
     } catch (error) {
       console.error("❌ 레포지토리 선택 실패:", error);
       setError(error.message || "레포지토리 선택 중 오류가 발생했습니다.");
@@ -115,6 +112,13 @@ const Repository = ({ user, githubToken }) => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    // 모달이 닫힐 때 저장된 레포지토리 목록을 다시 불러오기
+    fetchRepositories();
+  };
+
+  const handleBackFromCommits = () => {
+    setShowCommitList(false);
+    setSelectedRepo(null);
   };
 
   if (loading) {
@@ -153,6 +157,13 @@ const Repository = ({ user, githubToken }) => {
           </button>
         </div>
       </div>
+    );
+  }
+
+  // 커밋 목록이 표시되어야 하는 경우
+  if (showCommitList && selectedRepo) {
+    return (
+      <CommitList repository={selectedRepo} onBack={handleBackFromCommits} />
     );
   }
 

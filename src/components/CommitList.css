@@ -1,0 +1,244 @@
+.commit-list-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.commit-list-header {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.commit-list-header h1 {
+  margin: 16px 0 8px 0;
+  color: #333;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.commit-list-header p {
+  margin: 0;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.back-button {
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  color: #666;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-bottom: 16px;
+}
+
+.back-button:hover {
+  background: #e9ecef;
+  border-color: #ced4da;
+  color: #333;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-container p {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.error-message {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.error-message p {
+  color: #d32f2f;
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.retry-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.retry-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.commits-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.empty-state {
+  padding: 60px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.commits-list {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.commit-card {
+  padding: 20px;
+  border-bottom: 1px solid #e1e5e9;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.commit-card:hover {
+  background-color: #f8f9fa;
+}
+
+.commit-card:last-child {
+  border-bottom: none;
+}
+
+.commit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.commit-info {
+  flex: 1;
+}
+
+.commit-message {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.commit-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.commit-sha {
+  background: #f1f3f4;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-weight: 500;
+}
+
+.commit-author {
+  font-weight: 500;
+  color: #667eea;
+}
+
+.commit-date {
+  color: #666;
+}
+
+.commit-avatar {
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .commit-list-container {
+    padding: 16px;
+  }
+
+  .commit-list-header {
+    padding: 20px;
+  }
+
+  .commit-list-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .commit-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .commit-avatar {
+    align-self: flex-end;
+  }
+
+  .commit-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

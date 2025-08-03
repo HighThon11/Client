@@ -380,3 +380,92 @@ export const saveRepository = async (repositoryData) => {
     throw error;
   }
 };
+
+/**
+ * 레포지토리 커밋 목록 조회 API 호출
+ * @param {string} owner - 레포지토리 소유자
+ * @param {string} repo - 레포지토리 이름
+ * @returns {Promise<Array>} 커밋 목록
+ */
+export const getRepositoryCommits = async (owner, repo) => {
+  const serverToken = localStorage.getItem("serverToken");
+  if (!serverToken) {
+    console.error("❌ JWT 토큰이 없습니다.");
+    throw new Error("인증 토큰이 없습니다. 다시 로그인해주세요.");
+  }
+
+  try {
+    console.log(`🚀 커밋 목록 조회 API 호출: ${owner}/${repo}`);
+    const response = await fetch(
+      `${API_BASE_URL}/github/repositories/${owner}/${repo}/commits`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${serverToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("❌ 커밋 목록 조회 실패:", errorData);
+      throw new Error(
+        errorData.message || "커밋 목록을 가져오는데 실패했습니다."
+      );
+    }
+
+    const result = await response.json();
+    console.log("✅ 커밋 목록 조회 성공:", result);
+    return result;
+  } catch (error) {
+    console.error("❌ 커밋 목록 조회 중 오류:", error);
+    throw error;
+  }
+};
+
+/**
+ * 커밋 상세 정보 조회 API 호출
+ * @param {string} owner - 레포지토리 소유자
+ * @param {string} repo - 레포지토리 이름
+ * @param {string} sha - 커밋 SHA
+ * @returns {Promise<Object>} 커밋 상세 정보
+ */
+export const getCommitDetail = async (owner, repo, sha) => {
+  const serverToken = localStorage.getItem("serverToken");
+  if (!serverToken) {
+    console.error("❌ JWT 토큰이 없습니다.");
+    throw new Error("인증 토큰이 없습니다. 다시 로그인해주세요.");
+  }
+
+  try {
+    console.log(`🚀 커밋 상세 조회 API 호출: ${owner}/${repo}/${sha}`);
+    const response = await fetch(
+      `${API_BASE_URL}/github/repositories/${owner}/${repo}/commits/${sha}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${serverToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("❌ 커밋 상세 조회 실패:", errorData);
+      throw new Error(
+        errorData.message || "커밋 상세 정보를 가져오는데 실패했습니다."
+      );
+    }
+
+    const result = await response.json();
+    console.log("✅ 커밋 상세 조회 성공:", result);
+    return result;
+  } catch (error) {
+    console.error("❌ 커밋 상세 조회 중 오류:", error);
+    throw error;
+  }
+};
