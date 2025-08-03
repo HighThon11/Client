@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { fetchRepositoryCommits, formatTimeAgo } from "../api/github";
 import "./ProjectDetails.css";
 
 const ProjectDetails = ({ user, githubToken }) => {
@@ -7,6 +8,7 @@ const ProjectDetails = ({ user, githubToken }) => {
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [changes, setChanges] = useState([]);
+  const [commits, setCommits] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
@@ -20,14 +22,52 @@ const ProjectDetails = ({ user, githubToken }) => {
     setError("");
 
     try {
-      // 로컬 스토리지에서 프로젝트 정보 가져오기
+      console.log("🔍 프로젝트 ID:", projectId);
+      
+      // 여러 소스에서 프로젝트 정보 찾기
+      let foundProject = null;
+      
+      // 1. projects 키에서 찾기
       const projects = JSON.parse(localStorage.getItem("projects") || "[]");
-      const foundProject = projects.find((p) => p.id === projectId);
+      console.log("📋 projects 키의 데이터:", projects);
+      foundProject = projects.find((p) => p.id === projectId);
+      
+      // 2. savedRepositories 키에서 찾기 (Repository에서 저장하는 데이터)
+      if (!foundProject) {
+        const savedRepos = JSON.parse(localStorage.getItem("savedRepositories") || "[]");
+        console.log("📋 savedRepositories 키의 데이터:", savedRepos);
+        foundProject = savedRepos.find((p) => p.id === projectId);
+        
+        // Repository 데이터를 Project 형식으로 변환
+        if (foundProject) {
+          foundProject = {
+            id: foundProject.id,
+            name: foundProject.repositoryName,
+            description: foundProject.repositoryDescription || "설명 없음",
+            repository: {
+              fullName: foundProject.repositoryFullName,
+              url: foundProject.repositoryUrl,
+              owner: foundProject.repositoryFullName?.split('/')[0],
+              name: foundProject.repositoryName
+            },
+            settings: {
+              branch: "main",
+              watchPaths: [],
+              webhookEnabled: false,
+              autoComment: false
+            },
+            createdAt: foundProject.repositoryUpdatedAt || new Date().toISOString()
+          };
+        }
+      }
 
       if (!foundProject) {
+        console.log("❌ 프로젝트를 찾을 수 없음");
         setError("프로젝트를 찾을 수 없습니다.");
         return;
       }
+
+      console.log("✅ 찾은 프로젝트:", foundProject);
 
       setProject(foundProject);
 
@@ -72,6 +112,61 @@ const ProjectDetails = ({ user, githubToken }) => {
       ];
 
       setChanges(mockChanges);
+
+      // GitHub 커밋 목록 가져오기
+      console.log("🔍 커밋 로딩 시작...");
+      console.log("📋 프로젝트 정보:", foundProject.repository);
+      console.log("🔑 GitHub 토큰 존재:", !!githubToken);
+      
+      if (foundProject.repository && githubToken) {
+        try {
+          const owner = foundProject.repository.owner || foundProject.repository.fullName?.split('/')[0];
+          const repo = foundProject.repository.name || foundProject.repository.fullName?.split('/')[1];
+          
+          console.log("👤 Owner:", owner);
+          console.log("📦 Repo:", repo);
+          
+          if (owner && repo) {
+            console.log("🚀 GitHub API 호출 중...");
+            const commitsData = await fetchRepositoryCommits(owner, repo, githubToken);
+            console.log("✅ 커밋 데이터 로딩 완료:", commitsData.length, "개");
+            console.log("📋 커밋 데이터 샘플:", commitsData.slice(0, 2));
+            setCommits(commitsData);
+            
+            // 임시 테스트용 데이터 (실제 데이터가 안 나올 때 사용)
+            if (commitsData.length === 0) {
+              console.log("🧪 테스트 데이터 설정");
+              setCommits([
+                {
+                  id: "test1",
+                  sha: "4974a70",
+                  message: "feat: 깃허브 연동 전까지 구현",
+                  author: "한태영",
+                  date: new Date().toISOString(),
+                  url: "#",
+                  avatar: ""
+                },
+                {
+                  id: "test2", 
+                  sha: "2bd3976",
+                  message: "feat: 커밋 조회 구현",
+                  author: "한태영",
+                  date: new Date(Date.now() - 86400000).toISOString(),
+                  url: "#",
+                  avatar: ""
+                }
+              ]);
+            }
+          } else {
+            console.log("❌ Owner 또는 Repo 정보 부족");
+          }
+        } catch (commitError) {
+          console.error("❌ 커밋 목록 가져오기 오류:", commitError);
+          // 커밋 로딩 실패는 전체 프로젝트 로딩을 중단하지 않음
+        }
+      } else {
+        console.log("❌ GitHub 토큰 또는 레포지토리 정보 없음");
+      }
     } catch (error) {
       console.error("Project details load error:", error);
       setError("프로젝트 정보를 불러오는 중 오류가 발생했습니다.");
@@ -276,6 +371,59 @@ const ProjectDetails = ({ user, githubToken }) => {
                     </span>
                     <span className="stat-label">검토 대기</span>
                   </div>
+                </div>
+              </div>
+
+              <div className="overview-card">
+                <h3>● 커밋 히스토리</h3>
+                <div className="commits-list">
+                  {commits.length === 0 ? (
+                    <div className="empty-commits">
+                      <p>커밋 정보를 불러올 수 없습니다.</p>
+                      <small>GitHub 토큰이 필요하거나 레포지토리 정보가 올바르지 않을 수 있습니다.</small>
+                    </div>
+                  ) : (
+                    commits.slice(0, 5).map((commit) => (
+                      <div key={commit.id} className="commit-item">
+                        <div className="commit-info">
+                          <div className="commit-header">
+                            <span className="commit-hash">Commit {commit.sha}</span>
+                            <span className="commit-time">{formatTimeAgo(commit.date)}</span>
+                          </div>
+                          <p className="commit-message">{commit.message}</p>
+                          <div className="commit-author">
+                            {commit.avatar && (
+                              <img 
+                                src={commit.avatar} 
+                                alt={commit.author} 
+                                className="author-avatar"
+                              />
+                            )}
+                            <span className="author-name">{commit.author}</span>
+                          </div>
+                        </div>
+                        <a 
+                          href={commit.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="commit-link"
+                        >
+                          보기 →
+                        </a>
+                      </div>
+                    ))
+                  )}
+                  {commits.length > 5 && (
+                    <div className="more-commits">
+                      <a 
+                        href={`https://github.com/${project.repository.owner || project.repository.fullName?.split('/')[0]}/${project.repository.name || project.repository.fullName?.split('/')[1]}/commits`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        더 많은 커밋 보기 →
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

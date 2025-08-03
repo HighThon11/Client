@@ -2,25 +2,33 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getSavedRepositories,
-  saveRepository,
-  getRepositoryCommits,
-  getCommitDetail,
   deleteSavedRepository,
 } from "../api/auth";
+import { 
+  fetchRepositoryCommits, 
+  fetchCommitDetail, 
+  generatePreviewComments,
+  applyComments,
+  updateCommentSession,
+  formatTimeAgo 
+} from "../api/github";
 import CreateRepositoryModal from "./CreateRepositoryModal";
-import CommitList from "./CommitList";
-import CommitDetail from "./CommitDetail";
 import "./Repository.css";
 
 const Repository = ({ user, githubToken, onLogout, onNavigationChange }) => {
   const [repositories, setRepositories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedRepo, setSelectedRepo] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showCommitList, setShowCommitList] = useState(false);
-  const [showCommitDetail, setShowCommitDetail] = useState(false);
+  const [selectedRepo, setSelectedRepo] = useState(null);
+  const [commits, setCommits] = useState([]);
+  const [commitsLoading, setCommitsLoading] = useState(false);
   const [selectedCommit, setSelectedCommit] = useState(null);
+  const [commitDetailLoading, setCommitDetailLoading] = useState(false);
+  const [previewComments, setPreviewComments] = useState(null);
+  const [commentSessionId, setCommentSessionId] = useState(null);
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [applyLoading, setApplyLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -126,61 +134,34 @@ const Repository = ({ user, githubToken, onLogout, onNavigationChange }) => {
   const handleRepoSelect = async (repo) => {
     try {
       setSelectedRepo(repo);
-      setLoading(true);
+      setCommitsLoading(true);
+      setCommits([]);
 
       console.log("🔍 선택된 레포지토리:", {
         repositoryName: repo.repositoryName,
         repositoryFullName: repo.repositoryFullName,
-        extractedOwner: repo.repositoryFullName?.split("/")[0],
-        extractedRepo: repo.repositoryName,
+        repositoryId: repo.id,
       });
 
-      // 네비게이션 숨기기
-      if (onNavigationChange) {
-        onNavigationChange(false);
-      }
-
-      // 히스토리에 현재 상태 추가 (뒤로가기 시 /repository로 돌아가도록)
-      navigate("/repository", { replace: false });
-
-      // 레포지토리의 첫 번째 커밋을 가져오기
-      const [owner, repoName] = repo.repositoryFullName?.split("/") || [];
-
-      console.log("🚀 API 호출 파라미터:", {
-        owner,
-        repoName,
-        fullName: repo.repositoryFullName,
-      });
-
-      const commits = await getRepositoryCommits(owner, repoName);
-
-      if (commits && commits.length > 0) {
-        // 첫 번째 커밋의 상세 정보 가져오기
-        const firstCommit = commits[0];
-        const commitDetail = await getCommitDetail(
-          repo.repositoryFullName.split("/")[0],
-          repo.repositoryName,
-          firstCommit.sha
-        );
-
-        setSelectedCommit(commitDetail);
-        setShowCommitDetail(true);
+      // GitHub 커밋 목록 가져오기
+      if (repo.repositoryFullName && githubToken) {
+        const [owner, repoName] = repo.repositoryFullName.split('/');
+        
+        console.log("🚀 GitHub API 호출:", { owner, repoName });
+        
+        const commitsData = await fetchRepositoryCommits(owner, repoName, githubToken);
+        console.log("✅ 커밋 데이터 로딩 완료:", commitsData.length, "개");
+        setCommits(commitsData);
       } else {
-        // 커밋이 없는 경우 커밋 목록 페이지로 이동
-        setShowCommitList(true);
+        console.log("❌ GitHub 토큰 또는 레포지토리 정보 없음");
       }
+      
     } catch (error) {
       console.error("❌ 레포지토리 선택 실패:", error);
       setError(`레포지토리 정보를 가져오는데 실패했습니다: ${error.message}`);
-      // API 호출 실패 시 커밋 목록 페이지로 이동
-      setShowCommitList(true);
     } finally {
-      setLoading(false);
+      setCommitsLoading(false);
     }
-  };
-
-  const handleBackToRepository = () => {
-    navigate("/repository");
   };
 
   const handleCreateRepository = () => {
@@ -207,31 +188,132 @@ const Repository = ({ user, githubToken, onLogout, onNavigationChange }) => {
     }
   };
 
-  const handleBackFromCommits = () => {
-    setShowCommitList(false);
+  const handleBackToRepository = () => {
     setSelectedRepo(null);
+    setCommits([]);
+    setSelectedCommit(null);
+  };
 
-    // 네비게이션 다시 표시
-    if (onNavigationChange) {
-      onNavigationChange(true);
+  const handleCommitClick = async (commit) => {
+    try {
+      setSelectedCommit(commit);
+      setCommitDetailLoading(true);
+
+      console.log("🔍 선택된 커밋:", commit);
+
+      // 커밋 상세 정보 가져오기
+      if (selectedRepo.repositoryFullName && githubToken) {
+        const [owner, repoName] = selectedRepo.repositoryFullName.split('/');
+        
+        console.log("🚀 커밋 상세 API 호출:", { owner, repoName, sha: commit.id });
+        
+        const commitDetail = await fetchCommitDetail(owner, repoName, commit.id, githubToken);
+        console.log("✅ 커밋 상세 데이터 로딩 완료:", commitDetail);
+        setSelectedCommit(commitDetail);
+      }
+      
+    } catch (error) {
+      console.error("❌ 커밋 상세 조회 실패:", error);
+      setError(`커밋 상세 정보를 가져오는데 실패했습니다: ${error.message}`);
+    } finally {
+      setCommitDetailLoading(false);
     }
-
-    // 히스토리 정리 - 현재 URL을 /repository로 교체
-    navigate("/repository", { replace: true });
   };
 
   const handleBackFromCommitDetail = () => {
-    setShowCommitDetail(false);
     setSelectedCommit(null);
-    setSelectedRepo(null);
+    setPreviewComments(null);
+    setCommentSessionId(null);
+  };
 
-    // 네비게이션 다시 표시
-    if (onNavigationChange) {
-      onNavigationChange(true);
+  const handleGeneratePreviewComments = async () => {
+    try {
+      setCommentLoading(true);
+      setPreviewComments(null);
+
+      console.log("🚀 AI 주석 미리보기 생성 시작");
+
+      if (selectedRepo.repositoryFullName && selectedCommit) {
+        const [owner, repoName] = selectedRepo.repositoryFullName.split('/');
+        
+        // 기본 브랜치는 main으로 설정 (실제로는 프로젝트 설정에서 가져올 수 있음)
+        const branch = 'main';
+        
+        const result = await generatePreviewComments(owner, repoName, selectedCommit.id, branch);
+        
+        setPreviewComments(result.comments || result);
+        setCommentSessionId(result.sessionId);
+        
+        console.log("✅ AI 주석 미리보기 생성 완료");
+      }
+      
+    } catch (error) {
+      console.error("❌ AI 주석 미리보기 생성 실패:", error);
+      setError(`AI 주석 생성에 실패했습니다: ${error.message}`);
+    } finally {
+      setCommentLoading(false);
     }
+  };
 
-    // 히스토리 정리 - 현재 URL을 /repository로 교체
-    navigate("/repository", { replace: true });
+  const handleApplyComments = async () => {
+    try {
+      setApplyLoading(true);
+
+      console.log("🚀 AI 주석 적용 시작");
+
+      if (selectedRepo.repositoryFullName && selectedCommit) {
+        const [owner, repoName] = selectedRepo.repositoryFullName.split('/');
+        
+        // 기본 브랜치는 main으로 설정
+        const branch = 'main';
+        
+        const result = await applyComments(owner, repoName, selectedCommit.id, branch);
+        
+        console.log("✅ AI 주석 적용 완료:", result);
+        
+        // 성공 메시지 표시
+        alert("🎉 AI 주석이 성공적으로 적용되어 GitHub에 푸시되었습니다!");
+        
+        // 상태 초기화
+        setPreviewComments(null);
+        setCommentSessionId(null);
+      }
+      
+    } catch (error) {
+      console.error("❌ AI 주석 적용 실패:", error);
+      setError(`AI 주석 적용에 실패했습니다: ${error.message}`);
+    } finally {
+      setApplyLoading(false);
+    }
+  };
+
+  const handleUpdateComment = async (commentId, newContent) => {
+    try {
+      console.log("🚀 주석 수정 시작:", { commentId, newContent });
+
+      if (commentSessionId) {
+        const result = await updateCommentSession(commentSessionId, {
+          commentId,
+          content: newContent
+        });
+        
+        console.log("✅ 주석 수정 완료:", result);
+        
+        // 미리보기 주석 업데이트
+        if (previewComments) {
+          const updatedComments = previewComments.map(comment => 
+            comment.id === commentId 
+              ? { ...comment, content: newContent }
+              : comment
+          );
+          setPreviewComments(updatedComments);
+        }
+      }
+      
+    } catch (error) {
+      console.error("❌ 주석 수정 실패:", error);
+      setError(`주석 수정에 실패했습니다: ${error.message}`);
+    }
   };
 
   if (loading) {
@@ -245,7 +327,7 @@ const Repository = ({ user, githubToken, onLogout, onNavigationChange }) => {
     );
   }
 
-  if (error) {
+    if (error) {
     return (
       <div className="repository-container">
         <div className="error-message">
@@ -273,31 +355,207 @@ const Repository = ({ user, githubToken, onLogout, onNavigationChange }) => {
     );
   }
 
-  // 커밋 상세 페이지가 표시되어야 하는 경우
-  if (showCommitDetail && selectedCommit && selectedRepo) {
-    return (
-      <div style={{ height: "100vh" }}>
-        <CommitDetail
-          commit={selectedCommit}
-          repository={selectedRepo}
-          onBack={handleBackFromCommitDetail}
-          user={user}
-          onLogout={onLogout}
-        />
-      </div>
-    );
-  }
+
 
   // 커밋 목록이 표시되어야 하는 경우
-  if (showCommitList && selectedRepo) {
+  if (selectedRepo) {
     return (
-      <div style={{ height: "100vh" }}>
-        <CommitList
-          repository={selectedRepo}
-          onBack={handleBackFromCommits}
-          user={user}
-          onLogout={onLogout}
-        />
+      <div className="repository-container">
+        <div className="repository-header">
+          <button onClick={handleBackToRepository} className="back-button">
+            ← 레포지토리 목록
+          </button>
+          <h1>{selectedRepo.repositoryName}</h1>
+          <p>{selectedRepo.repositoryDescription || "설명 없음"}</p>
+        </div>
+
+        <div className="commit-layout">
+          {/* 왼쪽: 커밋 목록 */}
+          <div className="commits-sidebar">
+            <h2>● 커밋 히스토리</h2>
+            
+            {commitsLoading ? (
+              <div className="loading-spinner">
+                <div className="spinner"></div>
+                <p>커밋 정보를 불러오는 중...</p>
+              </div>
+            ) : commits.length === 0 ? (
+              <div className="empty-commits">
+                <p>커밋 정보를 불러올 수 없습니다.</p>
+                <small>GitHub 토큰이 필요하거나 레포지토리 정보가 올바르지 않을 수 있습니다.</small>
+              </div>
+            ) : (
+              <div className="commits-list">
+                {commits.slice(0, 10).map((commit) => (
+                  <div 
+                    key={commit.id} 
+                    className={`commit-item ${selectedCommit && selectedCommit.id === commit.id ? 'selected' : ''}`} 
+                    onClick={() => handleCommitClick(commit)}
+                  >
+                    <div className="commit-info">
+                      <div className="commit-header">
+                        <span className="commit-hash">Commit {commit.sha}</span>
+                        <span className="commit-time">{formatTimeAgo(commit.date)}</span>
+                      </div>
+                      <p className="commit-message">{commit.message}</p>
+                      <div className="commit-author">
+                        {commit.avatar && (
+                          <img 
+                            src={commit.avatar} 
+                            alt={commit.author} 
+                            className="author-avatar"
+                          />
+                        )}
+                        <span className="author-name">{commit.author}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {commits.length > 10 && (
+                  <div className="more-commits">
+                    <a 
+                      href={`https://github.com/${selectedRepo.repositoryFullName}/commits`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      더 많은 커밋 보기 →
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* 오른쪽: 커밋 상세 정보 */}
+          <div className="commit-detail-panel">
+            {selectedCommit && selectedCommit.files ? (
+              <>
+                <div className="commit-detail-header">
+                  <div className="commit-detail-info">
+                    <h2>Commit {selectedCommit.sha}</h2>
+                    <p className="commit-detail-message">{selectedCommit.message}</p>
+                                          <div className="commit-detail-meta">
+                        <div className="commit-author">
+                          {selectedCommit.avatar && (
+                            <img 
+                              src={selectedCommit.avatar} 
+                              alt={selectedCommit.author} 
+                              className="author-avatar"
+                            />
+                          )}
+                          <span className="author-name">{selectedCommit.author}</span>
+                          <span className="commit-time">{formatTimeAgo(selectedCommit.date)}</span>
+                        </div>
+                      </div>
+                  </div>
+                  <a 
+                    href={selectedCommit.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="github-link"
+                  >
+                    GitHub에서 보기 →
+                  </a>
+                </div>
+
+                                 {commitDetailLoading ? (
+                   <div className="loading-spinner">
+                     <div className="spinner"></div>
+                     <p>커밋 상세 정보를 불러오는 중...</p>
+                   </div>
+                 ) : (
+                   <>
+                     <div className="commit-files">
+                       <h3>변경된 파일 ({selectedCommit.files.length}개)</h3>
+                       {selectedCommit.files.map((file, index) => (
+                         <div key={index} className="commit-file">
+                           <div className="file-header">
+                             <span className="file-name">{file.filename}</span>
+                             <div className="file-stats">
+                               <span className={`file-status ${file.status}`}>{file.status}</span>
+                               {file.additions > 0 && <span className="additions">+{file.additions}</span>}
+                               {file.deletions > 0 && <span className="deletions">-{file.deletions}</span>}
+                             </div>
+                           </div>
+                           {file.patch && (
+                             <details className="file-diff">
+                               <summary>변경사항 보기</summary>
+                               <pre className="diff-content">{file.patch}</pre>
+                             </details>
+                           )}
+                         </div>
+                       ))}
+                     </div>
+
+                     {/* AI 주석 섹션 */}
+                     <div className="ai-comments-section">
+                       <div className="ai-comments-header">
+                         <h3>AI 주석</h3>
+                         {!previewComments && (
+                           <button 
+                             onClick={handleGeneratePreviewComments}
+                             disabled={commentLoading}
+                             className="generate-comments-btn"
+                           >
+                             {commentLoading ? '생성 중...' : 'AI 주석 미리보기 생성'}
+                           </button>
+                         )}
+                       </div>
+
+                       {commentLoading && (
+                         <div className="loading-spinner">
+                           <div className="spinner"></div>
+                           <p>AI 주석을 생성하는 중...</p>
+                         </div>
+                       )}
+
+                       {previewComments && (
+                         <div className="preview-comments">
+                           <div className="comments-list">
+                             {previewComments.map((comment, index) => (
+                               <div key={comment.id || index} className="comment-item">
+                                 <div className="comment-header">
+                                   <span className="comment-file">{comment.fileName || comment.filename}</span>
+                                   <span className="comment-line">라인 {comment.lineNumber || comment.line}</span>
+                                 </div>
+                                 <div className="comment-content">
+                                   <textarea
+                                     value={comment.content}
+                                     onChange={(e) => handleUpdateComment(comment.id, e.target.value)}
+                                     className="comment-textarea"
+                                     placeholder="주석 내용을 입력하세요..."
+                                   />
+                                 </div>
+                               </div>
+                             ))}
+                           </div>
+                           
+                           <div className="comments-actions">
+                             <button 
+                               onClick={handleApplyComments}
+                               disabled={applyLoading}
+                               className="apply-comments-btn"
+                             >
+                               {applyLoading ? '적용 중...' : '주석 적용해서 커밋 후 푸시하기'}
+                             </button>
+                           </div>
+                         </div>
+                       )}
+                     </div>
+                   </>
+                 )}
+              </>
+            ) : (
+              <div className="no-selection">
+                <div className="no-selection-content">
+                  <h3>커밋을 선택하세요</h3>
+                  <p>왼쪽에서 커밋을 선택하면 상세 정보를 볼 수 있습니다.</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
