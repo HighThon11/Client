@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://10.10.6.74:8081/api';
+const API_BASE_URL = "http://10.10.6.74:8081/api";
 // // 변수 선언
 
 /**
@@ -7,18 +7,18 @@ const API_BASE_URL = 'http://10.10.6.74:8081/api';
  * @returns {Promise<Object>} 회원가입 결과
  */
 export const signupUser = async (signupData) => {
-// // 새로운 함수 정의
+  // // 새로운 함수 정의
   try {
     const response = await fetch(`${API_BASE_URL}/auth/signup`, {
-    // // 변수 선언
-      method: 'POST',
+      // // 변수 선언
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
-      mode: 'cors',
-      credentials: 'omit',
-      body: JSON.stringify(signupData)
+      mode: "cors",
+      credentials: "omit",
+      body: JSON.stringify(signupData),
     });
 
     if (!response.ok) {
@@ -29,9 +29,11 @@ export const signupUser = async (signupData) => {
 
     return await response.json();
   } catch (error) {
-    console.error('회원가입 API 호출 실패:', error);
-    if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      throw new Error('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
+    console.error("회원가입 API 호출 실패:", error);
+    if (error.name === "TypeError" && error.message.includes("fetch")) {
+      throw new Error(
+        "서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요."
+      );
     }
     throw error;
   }
@@ -43,18 +45,18 @@ export const signupUser = async (signupData) => {
  * @returns {Promise<Object>} 로그인 결과
  */
 export const loginUser = async (loginData) => {
-// // 새로운 함수 정의
+  // // 새로운 함수 정의
   try {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
-    // // 변수 선언
-      method: 'POST',
+      // // 변수 선언
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
-      mode: 'cors',
-      credentials: 'omit',
-      body: JSON.stringify(loginData)
+      mode: "cors",
+      credentials: "omit",
+      body: JSON.stringify(loginData),
     });
 
     if (!response.ok) {
@@ -65,9 +67,11 @@ export const loginUser = async (loginData) => {
 
     return await response.json();
   } catch (error) {
-    console.error('로그인 API 호출 실패:', error);
-    if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      throw new Error('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
+    console.error("로그인 API 호출 실패:", error);
+    if (error.name === "TypeError" && error.message.includes("fetch")) {
+      throw new Error(
+        "서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요."
+      );
     }
     throw error;
   }
@@ -75,118 +79,304 @@ export const loginUser = async (loginData) => {
 
 /**
  * GitHub 레포지토리 목록 조회 API 호출
- * @param {string} token - 인증 토큰
  * @returns {Promise<Array>} 레포지토리 목록
  */
-export const getGitHubRepositories = async (token) => {
-// // 새로운 함수 정의
+export const getGitHubRepositories = async () => {
+  // // 새로운 함수 정의
+  // 로컬 스토리지에서 JWT 토큰 가져오기
+  const serverToken = localStorage.getItem("serverToken");
+
+  if (!serverToken) {
+    console.error("❌ JWT 토큰이 없습니다.");
+    throw new Error("인증 토큰이 없습니다. 다시 로그인해주세요.");
+  }
+
   // 더미 토큰인 경우 더미 데이터 사용
-  if (token === 'dummy-github-token-12345') {
-    console.log('🧪 더미 토큰 감지 - 더미 데이터 사용 중...');
+  const githubToken = localStorage.getItem("githubToken");
+  if (githubToken === "dummy-github-token-12345") {
+    console.log("🧪 더미 토큰 감지 - 더미 데이터 사용 중...");
     return [
       {
         id: 1,
-        name: 'my-react-app',
-        description: 'React로 만든 웹 애플리케이션',
+        name: "my-react-app",
+        description: "React로 만든 웹 애플리케이션",
         private: false,
-        language: 'JavaScript',
+        language: "JavaScript",
         stargazers_count: 5,
         forks_count: 2,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       },
       {
         id: 2,
-        name: 'api-service',
-        description: 'Node.js API 서버',
+        name: "api-service",
+        description: "Node.js API 서버",
         private: true,
-        language: 'JavaScript',
+        language: "JavaScript",
         stargazers_count: 3,
         forks_count: 1,
-        updated_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+        updated_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
       },
       {
         id: 3,
-        name: 'portfolio-website',
-        description: '개인 포트폴리오 웹사이트',
+        name: "portfolio-website",
+        description: "개인 포트폴리오 웹사이트",
         private: false,
-        language: 'HTML',
+        language: "HTML",
         stargazers_count: 8,
         forks_count: 4,
-        updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-      }
+        updated_at: new Date(
+          Date.now() - 2 * 24 * 60 * 60 * 1000
+        ).toISOString(),
+      },
     ];
   }
 
-
-
   try {
-    console.log('🔍 API 요청 시작:', `${API_BASE_URL}/github/repositories`);
-    console.log('🔑 토큰 존재 여부:', !!token);
+    console.log("🔍 API 요청 시작:", `${API_BASE_URL}/github/repositories`);
+    console.log("🔑 JWT 토큰 존재 여부:", !!serverToken);
 
     const response = await fetch(`${API_BASE_URL}/github/repositories`, {
-    // // 변수 선언
-      method: 'GET',
+      // // 변수 선언
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${serverToken}`,
       },
-      mode: 'cors',
-      credentials: 'omit'
+      mode: "cors",
+      credentials: "omit",
     });
 
-    console.log('📡 API 응답 상태:', response.status, response.statusText);
-    console.log('📡 API 응답 헤더:', Object.fromEntries(response.headers.entries()));
+    console.log("📡 API 응답 상태:", response.status, response.statusText);
+    console.log(
+      "📡 API 응답 헤더:",
+      Object.fromEntries(response.headers.entries())
+    );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       // // 새로운 함수 정의
-      console.error('❌ API 에러 응답:', errorData);
-      throw new Error(errorData.message || `레포지토리 조회 실패: ${response.status}`);
+      console.error("❌ API 에러 응답:", errorData);
+      throw new Error(
+        errorData.message || `레포지토리 조회 실패: ${response.status}`
+      );
     }
 
     const data = await response.json();
     // // 변수 선언
-    console.log('✅ API 응답 데이터:', data);
+    console.log("✅ API 응답 데이터:", data);
     return data;
   } catch (error) {
-    console.error('❌ GitHub 레포지토리 API 호출 실패:', error);
-    console.error('❌ 에러 타입:', error.name);
-    console.error('❌ 에러 메시지:', error.message);
+    console.error("❌ GitHub 레포지토리 API 호출 실패:", error);
+    console.error("❌ 에러 타입:", error.name);
+    console.error("❌ 에러 메시지:", error.message);
 
     // API 연결 실패 시에도 더미 데이터 반환 (프론트엔드 테스트용)
-    console.log('🔄 API 연결 실패 - 더미 데이터로 대체...');
+    console.log("🔄 API 연결 실패 - 더미 데이터로 대체...");
     return [
       {
         id: 1,
-        name: 'my-react-app',
-        description: 'React로 만든 웹 애플리케이션',
+        name: "my-react-app",
+        description: "React로 만든 웹 애플리케이션",
         private: false,
-        language: 'JavaScript',
+        language: "JavaScript",
         stargazers_count: 5,
         forks_count: 2,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       },
       {
         id: 2,
-        name: 'api-service',
-        description: 'Node.js API 서버',
+        name: "api-service",
+        description: "Node.js API 서버",
         private: true,
-        language: 'JavaScript',
+        language: "JavaScript",
         stargazers_count: 3,
         forks_count: 1,
-        updated_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+        updated_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
       },
       {
         id: 3,
-        name: 'portfolio-website',
-        description: '개인 포트폴리오 웹사이트',
+        name: "portfolio-website",
+        description: "개인 포트폴리오 웹사이트",
         private: false,
-        language: 'HTML',
+        language: "HTML",
         stargazers_count: 8,
         forks_count: 4,
-        updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-      }
+        updated_at: new Date(
+          Date.now() - 2 * 24 * 60 * 60 * 1000
+        ).toISOString(),
+      },
     ];
   }
-}; 
+};
+
+/**
+ * 저장된 레포지토리 목록 조회 API 호출
+ * @returns {Promise<Array>} 저장된 레포지토리 목록
+ */
+export const getSavedRepositories = async () => {
+  // // 새로운 함수 정의
+  // 로컬 스토리지에서 JWT 토큰 가져오기
+  const serverToken = localStorage.getItem("serverToken");
+
+  if (!serverToken) {
+    console.error("❌ JWT 토큰이 없습니다.");
+    throw new Error("인증 토큰이 없습니다. 다시 로그인해주세요.");
+  }
+
+  try {
+    console.log(
+      "🔍 저장된 레포지토리 조회 시작:",
+      `${API_BASE_URL}/saved-repositories`
+    );
+    console.log("🔑 JWT 토큰 존재 여부:", !!serverToken);
+
+    const response = await fetch(`${API_BASE_URL}/saved-repositories`, {
+      // // 변수 선언
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${serverToken}`,
+      },
+      mode: "cors",
+      credentials: "omit",
+    });
+
+    console.log("📡 API 응답 상태:", response.status, response.statusText);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      // // 새로운 함수 정의
+      console.error("❌ API 에러 응답:", errorData);
+      throw new Error(
+        errorData.message || `저장된 레포지토리 조회 실패: ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+    // // 변수 선언
+    console.log("✅ 저장된 레포지토리 응답 데이터:", data);
+    return data;
+  } catch (error) {
+    console.error("❌ 저장된 레포지토리 API 호출 실패:", error);
+    console.error("❌ 에러 타입:", error.name);
+    console.error("❌ 에러 메시지:", error.message);
+    throw error;
+  }
+};
+
+/**
+ * GitHub 사용자 정보 조회 API 호출
+ * @returns {Promise<Object>} GitHub 사용자 정보
+ */
+export const getGitHubUserInfo = async () => {
+  // // 새로운 함수 정의
+  // 로컬 스토리지에서 JWT 토큰 가져오기
+  const serverToken = localStorage.getItem("serverToken");
+
+  if (!serverToken) {
+    console.error("❌ JWT 토큰이 없습니다.");
+    throw new Error("인증 토큰이 없습니다. 다시 로그인해주세요.");
+  }
+
+  try {
+    console.log(
+      "🔍 GitHub 사용자 정보 조회 시작:",
+      `${API_BASE_URL}/github/user`
+    );
+    console.log("🔑 JWT 토큰 존재 여부:", !!serverToken);
+
+    const response = await fetch(`${API_BASE_URL}/github/user`, {
+      // // 변수 선언
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${serverToken}`,
+      },
+      mode: "cors",
+      credentials: "omit",
+    });
+
+    console.log("📡 API 응답 상태:", response.status, response.statusText);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      // // 새로운 함수 정의
+      console.error("❌ API 에러 응답:", errorData);
+      throw new Error(
+        errorData.message || `GitHub 사용자 정보 조회 실패: ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+    // // 변수 선언
+    console.log("✅ GitHub 사용자 정보 응답 데이터:", data);
+    return data;
+  } catch (error) {
+    console.error("❌ GitHub 사용자 정보 API 호출 실패:", error);
+    console.error("❌ 에러 타입:", error.name);
+    console.error("❌ 에러 메시지:", error.message);
+    throw error;
+  }
+};
+
+/**
+ * 저장된 레포지토리 저장 API 호출
+ * @param {Object} repositoryData - 저장할 레포지토리 데이터
+ * @returns {Promise<Object>} 저장 결과
+ */
+export const saveRepository = async (repositoryData) => {
+  // // 새로운 함수 정의
+  // 로컬 스토리지에서 JWT 토큰 가져오기
+  const serverToken = localStorage.getItem("serverToken");
+
+  if (!serverToken) {
+    console.error("❌ JWT 토큰이 없습니다.");
+    throw new Error("인증 토큰이 없습니다. 다시 로그인해주세요.");
+  }
+
+  try {
+    console.log(
+      "🔍 레포지토리 저장 시작:",
+      `${API_BASE_URL}/saved-repositories`
+    );
+    console.log("📦 저장할 레포지토리 데이터:", repositoryData);
+    console.log("🔑 JWT 토큰 존재 여부:", !!serverToken);
+
+    const response = await fetch(`${API_BASE_URL}/saved-repositories`, {
+      // // 변수 선언
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${serverToken}`,
+      },
+      mode: "cors",
+      credentials: "omit",
+      body: JSON.stringify(repositoryData),
+    });
+
+    console.log("📡 API 응답 상태:", response.status, response.statusText);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      // // 새로운 함수 정의
+      console.error("❌ API 에러 응답:", errorData);
+      throw new Error(
+        errorData.message || `레포지토리 저장 실패: ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+    // // 변수 선언
+    console.log("✅ 레포지토리 저장 응답 데이터:", data);
+    return data;
+  } catch (error) {
+    console.error("❌ 레포지토리 저장 API 호출 실패:", error);
+    console.error("❌ 에러 타입:", error.name);
+    console.error("❌ 에러 메시지:", error.message);
+    throw error;
+  }
+};
